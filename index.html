@@ -27,7 +27,7 @@
             font-size: 9rem;
             letter-spacing: -0.015em;
             margin: 0;
-            color: #C7C0B4;       /* 字體顏色 */
+            color: #C7C0B4;       /* 高級米金色 */
             opacity: 0;
             animation: fadeIn 0.6s ease-out forwards;
             transform: translateY(10px);
@@ -37,10 +37,19 @@
             font-family: "Instrument Serif", serif;
             font-size: 0.85rem;
             letter-spacing: 0.01em;
-            color: #C7C0B4;       /* 同色系 footer */
-            opacity: 0.5;         /* 精緻淡化處理 */
+            opacity: 0.5;
             position: absolute;
             bottom: 35px;
+        }
+
+        footer a {
+            color: #C7C0B4;       /* 字體顏色 */
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+
+        footer a:hover {
+            opacity: 0.8;         /* 鼠標移上去輕微變亮 */
         }
 
         @keyframes fadeIn {
@@ -67,7 +76,10 @@
 <body>
 
     <h1>this is weiimg.</h1>
-    <footer>hi@weiimg.com</footer>
+
+    <footer>
+        <a href="mailto:hi@weiimg.com">hi@weiimg.com</a>
+    </footer>
 
 </body>
 </html>
