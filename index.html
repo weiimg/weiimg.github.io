@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>weiimg</title>
 
-    <!-- Font: Instrument Serif -->
+    <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
@@ -13,12 +13,19 @@
     <style>
         body {
             margin: 0;
-            height: 100vh;
+            min-height: 100vh;
+            background: #100F0F;
+            color: #C7C0B4;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .center-wrap {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #100F0F;   /* 深色背景 */
-            position: relative;
+            overflow: hidden;
         }
 
         h1 {
@@ -27,10 +34,16 @@
             font-size: 9rem;
             letter-spacing: -0.015em;
             margin: 0;
-            color: #C7C0B4;       /* 高級米金色 */
-            opacity: 0;
-            animation: fadeIn 0.6s ease-out forwards;
-            transform: translateY(10px);
+            transform: translate3d(0,0,0);
+            user-select: none;
+            cursor: grab;
+            transition: filter 0.25s ease, opacity 0.25s ease;
+        }
+
+        h1.dragging {
+            filter: blur(12px);
+            opacity: 0.55;
+            cursor: grabbing;
         }
 
         footer {
@@ -38,48 +51,112 @@
             font-size: 0.85rem;
             letter-spacing: 0.01em;
             opacity: 0.5;
-            position: absolute;
-            bottom: 35px;
+            text-align: center;
+            padding-bottom: 35px;
         }
 
         footer a {
-            color: #C7C0B4;       /* 字體顏色 */
+            color: #C7C0B4;
             text-decoration: none;
-            transition: opacity 0.2s ease;
         }
 
-        footer a:hover {
-            opacity: 0.8;         /* 鼠標移上去輕微變亮 */
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        footer a:hover { opacity: 0.8; }
 
         @media (max-width: 768px) {
-            h1 {
-                font-size: 4rem;
-            }
-            footer {
-                font-size: 0.7rem;
-            }
+            h1 { font-size: 4rem; }
+            footer { font-size: 0.7rem; }
         }
     </style>
 </head>
 <body>
 
-    <h1>this is weiimg.</h1>
+    <div class="center-wrap">
+        <h1 id="drag">this is weiimg.</h1>
+    </div>
 
-    <footer>
-        <a href="mailto:hi@weiimg.com">hi@weiimg.com</a>
-    </footer>
+    <footer><a href="mailto:hi@weiimg.com">hi@weiimg.com</a></footer>
+
+<script>
+const el = document.getElementById("drag");
+
+let isDragging = false;
+let startX = 0, startY = 0;
+let currentX = 0, currentY = 0;
+
+const baseX = 0;
+const baseY = 0;
+
+el.addEventListener("mousedown", startDrag);
+el.addEventListener("touchstart", startDrag, { passive:false });
+
+function startDrag(e){
+    e.preventDefault();
+    isDragging = true;
+
+    el.classList.add("dragging");   // ← 抓起來就模糊
+
+    const pos = e.touches ? e.touches[0] : e;
+    startX = pos.clientX - currentX;
+    startY = pos.clientY - currentY;
+
+    document.addEventListener("mousemove", onDrag);
+    document.addEventListener("mouseup", endDrag);
+
+    document.addEventListener("touchmove", onDrag, { passive:false });
+    document.addEventListener("touchend", endDrag);
+}
+
+function onDrag(e){
+    if(!isDragging) return;
+
+    const pos = e.touches ? e.touches[0] : e;
+
+    currentX = pos.clientX - startX;
+    currentY = pos.clientY - startY;
+
+    el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+}
+
+function endDrag(){
+    isDragging = false;
+
+    el.classList.remove("dragging"); // ← 放開 → 回到清晰（動畫 0.25s）
+
+    document.removeEventListener("mousemove", onDrag);
+    document.removeEventListener("touchmove", onDrag);
+
+    let vx = currentX * 0.035;
+    let vy = currentY * 0.035;
+
+    //彈簧參數（你喜歡的版 + 微調）
+    const stiffness = 0.032;
+    const damping   = 0.15;
+    const threshold = 0.07;
+
+    function animate(){
+        const ax = -stiffness * (currentX - baseX) - damping * vx;
+        const ay = -stiffness * (currentY - baseY) - damping * vy;
+
+        vx += ax;
+        vy += ay;
+
+        currentX += vx;
+        currentY += vy;
+
+        el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+
+        if (Math.abs(vx) > threshold || Math.abs(vy) > threshold){
+            requestAnimationFrame(animate);
+        } else {
+            currentX = baseX;
+            currentY = baseY;
+            el.style.transform = `translate3d(0,0,0)`;
+        }
+    }
+
+    requestAnimationFrame(animate);
+}
+</script>
 
 </body>
 </html>
