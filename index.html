@@ -115,31 +115,6 @@
 
   <footer><a href="mailto:hi@weiimg.com">hi@weiimg.com</a></footer>
 
-// 📱 手機支援：用 touchmove 判斷滑動方向
-let touchStartY = 0;
-
-window.addEventListener("touchstart", (e) => {
-  touchStartY = e.touches[0].clientY;
-}, { passive: false });
-
-window.addEventListener("touchend", (e) => {
-  const touchEndY = e.changedTouches[0].clientY;
-  const deltaY = touchStartY - touchEndY;
-
-  if (deltaY > 30 && currentState === "top") {
-    // 手指往上滑 → scroll down 效果
-    el.classList.add("exit");
-    subtitle.classList.add("enter");
-    currentState = "scrolled";
-  } else if (deltaY < -30 && currentState === "scrolled") {
-    // 手指往下滑 → scroll up 效果
-    el.classList.remove("exit");
-    subtitle.classList.remove("enter");
-    currentState = "top";
-  }
-}, { passive: false });
-
-
 <script>
 const el = document.getElementById("drag");
 const subtitle = document.getElementById("subtitle");
@@ -235,8 +210,44 @@ window.addEventListener("wheel", (e) => {
   wheelCooldown = true;
   setTimeout(() => wheelCooldown = false, 600); // 防連續觸發
 });
+
+  // 📱 手機觸控支援：滑動觸發動畫切換
+let touchStartY = 0;
+
+window.addEventListener("touchstart", (e) => {
+  touchStartY = e.touches[0].clientY;
+}, { passive: false });
+
+window.addEventListener("touchend", (e) => {
+  if (wheelCooldown) return;
+
+  const touchEndY = e.changedTouches[0].clientY;
+  const deltaY = touchStartY - touchEndY;
+
+  if (deltaY > 30 && currentState === "first") {
+    // 手指往上滑 → 切到第二段
+    el.classList.add("exit");
+    el.classList.remove("enter");
+    subtitle.classList.add("enter");
+    subtitle.classList.remove("exit");
+    currentState = "second";
+  } else if (deltaY < -30 && currentState === "second") {
+    // 手指往下滑 → 回到第一段
+    el.classList.add("enter");
+    el.classList.remove("exit");
+    subtitle.classList.add("exit");
+    subtitle.classList.remove("enter");
+    currentState = "first";
+  }
+
+  wheelCooldown = true;
+  setTimeout(() => wheelCooldown = false, 600);
+}, { passive: false });
+
+  
 </script>
 
 </body>
 </html>
+
 
