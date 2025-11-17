@@ -115,6 +115,31 @@
 
   <footer><a href="mailto:hi@weiimg.com">hi@weiimg.com</a></footer>
 
+// 📱 手機支援：用 touchmove 判斷滑動方向
+let touchStartY = 0;
+
+window.addEventListener("touchstart", (e) => {
+  touchStartY = e.touches[0].clientY;
+}, { passive: false });
+
+window.addEventListener("touchend", (e) => {
+  const touchEndY = e.changedTouches[0].clientY;
+  const deltaY = touchStartY - touchEndY;
+
+  if (deltaY > 30 && currentState === "top") {
+    // 手指往上滑 → scroll down 效果
+    el.classList.add("exit");
+    subtitle.classList.add("enter");
+    currentState = "scrolled";
+  } else if (deltaY < -30 && currentState === "scrolled") {
+    // 手指往下滑 → scroll up 效果
+    el.classList.remove("exit");
+    subtitle.classList.remove("enter");
+    currentState = "top";
+  }
+}, { passive: false });
+
+
 <script>
 const el = document.getElementById("drag");
 const subtitle = document.getElementById("subtitle");
@@ -214,3 +239,4 @@ window.addEventListener("wheel", (e) => {
 
 </body>
 </html>
+
