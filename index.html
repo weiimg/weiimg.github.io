@@ -1,86 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>weiimg</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>weiimg</title>
+  <link rel="icon" href="https://cdn.weiimg.com/linjinwei_resize.jpg" type="image/jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100vh;
+      background: #100F0F;
+      color: #C7C0B4;
+      font-family: "Instrument Serif", serif;
+    }
 
-    <!-- ✅ Tab Icon -->
-    <link rel="icon" href="https://cdn.weiimg.com/linjinwei_resize.jpg" type="image/jpg" />
+    .center-wrap, .next-section {
+      position: absolute;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-    <!-- Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    h1, h2 {
+      margin: 0;
+      pointer-events: none;
+    }
 
-    <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background: #100F0F;
-            color: #C7C0B4;
-            display: flex;
-            flex-direction: column;
-        }
+    h1 {
+      font-size: 9rem;
+      letter-spacing: -0.015em;
+      transform: translate3d(0,0,0);
+      user-select: none;
+      cursor: grab;
+      transition: all 0.5s ease;
+    }
 
-        .center-wrap {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
+    h1.dragging {
+      filter: blur(12px);
+      opacity: 0.55;
+      cursor: grabbing;
+    }
 
-        h1 {
-            font-family: "Instrument Serif", serif;
-            font-weight: 400;
-            font-size: 9rem;
-            letter-spacing: -0.015em;
-            margin: 0;
-            transform: translate3d(0,0,0);
-            user-select: none;
-            cursor: grab;
-            transition: filter 0.25s ease, opacity 0.25s ease;
-        }
+    h1.exit {
+      opacity: 0;
+      filter: blur(15px);
+      transform: translateY(-120px);
+    }
 
-        h1.dragging {
-            filter: blur(12px);
-            opacity: 0.55;
-            cursor: grabbing;
-        }
+    h1.enter {
+      opacity: 1;
+      filter: blur(0px);
+      transform: translateY(0);
+    }
 
-        footer {
-            font-family: "Instrument Serif", serif;
-            font-size: 0.85rem;
-            letter-spacing: 0.01em;
-            opacity: 0.5;
-            text-align: center;
-            padding-bottom: 35px;
-        }
+    h2 {
+      font-size: 2.5rem;
+      opacity: 0;
+      filter: blur(15px);
+      transform: translateY(60px);
+      transition: all 1s ease;
+    }
 
-        footer a {
-            color: #C7C0B4;
-            text-decoration: none;
-        }
+    h2.enter {
+      opacity: 1;
+      filter: blur(0px);
+      transform: translateY(0px);
+    }
 
-        footer a:hover { opacity: 0.8; }
+    h2.exit {
+      opacity: 0;
+      filter: blur(15px);
+      transform: translateY(60px);
+    }
 
-        @media (max-width: 768px) {
-            h1 { font-size: 4rem; }
-            footer { font-size: 0.7rem; }
-        }
-    </style>
+    footer {
+      font-size: 0.85rem;
+      opacity: 0.5;
+      text-align: center;
+      position: absolute;
+      bottom: 30px;
+      width: 100%;
+    }
+
+    footer a {
+      color: #C7C0B4;
+      text-decoration: none;
+    }
+
+    footer a:hover { opacity: 0.8; }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 4rem; }
+      h2 { font-size: 1.5rem; }
+      footer { font-size: 0.7rem; }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="center-wrap">
-        <h1 id="drag">this is weiimg.</h1>
-    </div>
+  <div class="center-wrap">
+    <h1 id="drag">this is weiimg.</h1>
+  </div>
 
-    <footer><a href="mailto:hi@weiimg.com">hi@weiimg.com</a></footer>
+  <div class="next-section">
+    <h2 id="subtitle">video production</h2>
+  </div>
+
+  <footer><a href="mailto:hi@weiimg.com">hi@weiimg.com</a></footer>
 
 <script>
 const el = document.getElementById("drag");
+const subtitle = document.getElementById("subtitle");
 
 let isDragging = false;
 let startX = 0, startY = 0;
@@ -93,76 +130,87 @@ el.addEventListener("mousedown", startDrag);
 el.addEventListener("touchstart", startDrag, { passive:false });
 
 function startDrag(e){
-    e.preventDefault();
-    isDragging = true;
+  e.preventDefault();
+  isDragging = true;
+  el.classList.add("dragging");
 
-    el.classList.add("dragging");   // ← 抓起來就模糊
+  const pos = e.touches ? e.touches[0] : e;
+  startX = pos.clientX - currentX;
+  startY = pos.clientY - currentY;
 
-    const pos = e.touches ? e.touches[0] : e;
-    startX = pos.clientX - currentX;
-    startY = pos.clientY - currentY;
-
-    document.addEventListener("mousemove", onDrag);
-    document.addEventListener("mouseup", endDrag);
-
-    document.addEventListener("touchmove", onDrag, { passive:false });
-    document.addEventListener("touchend", endDrag);
+  document.addEventListener("mousemove", onDrag);
+  document.addEventListener("mouseup", endDrag);
+  document.addEventListener("touchmove", onDrag, { passive:false });
+  document.addEventListener("touchend", endDrag);
 }
 
 function onDrag(e){
-    if(!isDragging) return;
-
-    const pos = e.touches ? e.touches[0] : e;
-
-    currentX = pos.clientX - startX;
-    currentY = pos.clientY - startY;
-
-    el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+  if(!isDragging) return;
+  const pos = e.touches ? e.touches[0] : e;
+  currentX = pos.clientX - startX;
+  currentY = pos.clientY - startY;
+  el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
 }
 
 function endDrag(){
-    isDragging = false;
+  isDragging = false;
+  el.classList.remove("dragging");
+  document.removeEventListener("mousemove", onDrag);
+  document.removeEventListener("touchmove", onDrag);
 
-    el.classList.remove("dragging"); // ← 放開 → 回到清晰（動畫 0.25s）
+  let vx = currentX * 0.035;
+  let vy = currentY * 0.035;
+  const stiffness = 0.032;
+  const damping   = 0.15;
+  const threshold = 0.07;
 
-    document.removeEventListener("mousemove", onDrag);
-    document.removeEventListener("touchmove", onDrag);
-
-    let vx = currentX * 0.035;
-    let vy = currentY * 0.035;
-
-    //彈簧參數（你喜歡的版 + 微調）
-    const stiffness = 0.032;
-    const damping   = 0.15;
-    const threshold = 0.07;
-
-    function animate(){
-        const ax = -stiffness * (currentX - baseX) - damping * vx;
-        const ay = -stiffness * (currentY - baseY) - damping * vy;
-
-        vx += ax;
-        vy += ay;
-
-        currentX += vx;
-        currentY += vy;
-
-        el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
-
-        if (Math.abs(vx) > threshold || Math.abs(vy) > threshold){
-            requestAnimationFrame(animate);
-        } else {
-            currentX = baseX;
-            currentY = baseY;
-            el.style.transform = `translate3d(0,0,0)`;
-        }
+  function animate(){
+    const ax = -stiffness * (currentX - baseX) - damping * vx;
+    const ay = -stiffness * (currentY - baseY) - damping * vy;
+    vx += ax;
+    vy += ay;
+    currentX += vx;
+    currentY += vy;
+    el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+    if (Math.abs(vx) > threshold || Math.abs(vy) > threshold){
+      requestAnimationFrame(animate);
+    } else {
+      currentX = baseX;
+      currentY = baseY;
+      el.style.transform = `translate3d(0,0,0)`;
     }
+  }
 
-    requestAnimationFrame(animate);
+  requestAnimationFrame(animate);
 }
+
+// ✅ 雙向 wheel 切換動畫
+let currentState = "first"; // "first" or "second"
+let wheelCooldown = false;
+
+window.addEventListener("wheel", (e) => {
+  if (wheelCooldown) return;
+
+  if (e.deltaY > 20 && currentState === "first") {
+    // 往下切換到第二段
+    el.classList.add("exit");
+    el.classList.remove("enter");
+    subtitle.classList.add("enter");
+    subtitle.classList.remove("exit");
+    currentState = "second";
+  } else if (e.deltaY < -20 && currentState === "second") {
+    // 往上切回第一段
+    el.classList.add("enter");
+    el.classList.remove("exit");
+    subtitle.classList.add("exit");
+    subtitle.classList.remove("enter");
+    currentState = "first";
+  }
+
+  wheelCooldown = true;
+  setTimeout(() => wheelCooldown = false, 600); // 防連續觸發
+});
 </script>
 
 </body>
 </html>
-
-
-
