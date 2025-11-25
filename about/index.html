@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About - WEIIMG 林晉維</title>
+  <link rel="icon" href="https://cdn.weiimg.com/linjinwei_resize.jpg" type="image/jpg" />
+  
+  <!-- 字型 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Noto+Serif+TC:wght@300;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-black: #100F0F;
+      --bg-white: #EAE5D9;
+      --text-white: #FFFFFF;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      background-color: var(--bg-black);
+      font-family: "Instrument Serif", "Noto Serif TC", serif;
+      /* 設定高度以產生滾動空間，300vh 代表有三個畫面的滾動距離 */
+      height: 300vh; 
+      overflow-x: hidden;
+    }
+
+    /* --- 背景層 (負責滾動視覺) --- */
+    .bg-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      width: 100%;
+      z-index: 1;
+      pointer-events: none;
+      transition: transform 0.1s linear; /* 平滑滾動 */
+      will-change: transform;
+    }
+
+    /* 第一層：黑色底 (預設) */
+    .bg-1 {
+      background-color: var(--bg-black);
+      z-index: 1;
+    }
+
+    /* 第一頁的滿版人像 */
+    .bg-portrait {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://cdn.weiimg.com/portrait.jpg');
+      background-position: center;
+      background-size: cover;
+      opacity: 0.9;
+      mix-blend-mode: overlay;
+    }
+
+    /* 第一頁左下角的小標題 */
+    .intro-caption {
+      position: absolute;
+      bottom: 40px;
+      left: 40px;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+      font-family: "Noto Serif TC", serif;
+      letter-spacing: 0.05em;
+      z-index: 2; /* 確保在人像之上 */
+    }
+
+    /* 第二層：白色塊 (從下方滑上來) */
+    .bg-2 {
+      background-color: var(--bg-white);
+      z-index: 2;
+      transform: translateY(100%); /* 初始位置在畫面下方 */
+    }
+
+    /* 第三層：黑色塊 (從下方滑上來覆蓋白色) */
+    .bg-3 {
+      background-color: var(--bg-black);
+      z-index: 3;
+      transform: translateY(100%); /* 初始位置在畫面下方 */
+    }
+
+    /* --- 前景內容層 (固定不動，透過 mix-blend-mode 變色) --- */
+    .fixed-content {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: 10;
+      mix-blend-mode: difference; /* 關鍵：讓白色文字在白背景上變黑 */
+      color: var(--text-white);
+      display: flex;
+      flex-direction: column;
+      padding: 40px;
+      box-sizing: border-box;
+      pointer-events: none; /* 確保不擋住滾動 */
+    }
+
+    /* 品牌與標題 */
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      width: 100%;
+    }
+
+    .brand-name {
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .page-title {
+      font-size: 8vw;
+      line-height: 0.9;
+      text-align: right;
+      opacity: 0;
+      animation: fadeIn 1.5s ease forwards 0.5s;
+    }
+
+    /* 中央文字容器 */
+    .center-text-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      max-width: 600px;
+      text-align: left; 
+      padding: 20px;
+    }
+
+    /* 文字段落樣式 */
+    .text-slide {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      opacity: 0;
+      filter: blur(15px); /* 初始模糊 */
+      transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+      font-family: "Noto Serif TC", serif;
+      font-size: 1.6rem;
+      line-height: 1.8;
+      font-weight: 300;
+    }
+
+    /* 顯示狀態 */
+    .text-slide.active {
+      opacity: 1;
+      filter: blur(0px);
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* 隱藏狀態 (往上或往下淡出) */
+    .text-slide.prev {
+      opacity: 0;
+      filter: blur(10px);
+      transform: translate(-50%, -60%);
+    }
+    
+    .text-slide.next {
+      opacity: 0;
+      filter: blur(10px);
+      transform: translate(-50%, -40%);
+    }
+
+    .label {
+      font-family: "Instrument Serif", serif;
+      font-size: 1rem;
+      opacity: 0.6;
+      margin-bottom: 25px;
+      display: block;
+      letter-spacing: 0.05em;
+    }
+
+    .line {
+      width: 60px;
+      height: 1px;
+      background: currentColor;
+      margin-bottom: 30px;
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .page-title { font-size: 15vw; }
+      .text-slide { font-size: 1.25rem; width: 85%; }
+      .fixed-content { padding: 20px; }
+      .intro-caption { left: 20px; bottom: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 背景層：負責色塊動畫 -->
+  <div class="bg-layer bg-1">
+    <!-- 照片 -->
+    <div class="bg-portrait"></div>
+    <!-- 新增：第一頁的小標題 -->
+    <div class="intro-caption">weiimg, 林晉維</div>
+  </div>
+  
+  <div class="bg-layer bg-2" id="bg-white"></div>
+  <div class="bg-layer bg-3" id="bg-black"></div>
+
+  <!-- 內容層：固定不動，文字在此切換 -->
+  <div class="fixed-content">
+    
+    <!-- 頂部 Header -->
+    <div class="header-top">
+      <a href="/" class="brand-name">WEIIMG</a>
+      <div class="page-title">About<br>Me.</div>
+    </div>
+
+    <!-- 中央文字區 -->
+    <div class="center-text-container">
+      
+      <!-- 第一段文字：Professional -->
+      <div class="text-slide" id="text-1">
+        <span class="label">PROFESSIONAL</span>
+        <span class="line"></span>
+        <p>專注於影像與設計共鳴的數位工作者。<br><br>
+        擅長影片製作、影音剪輯、視覺設計，<br>
+        在品牌及行銷領域擁有豐富的專案執行經驗。</p>
+      </div>
+
+      <!-- 第二段文字：Personal -->
+      <div class="text-slide" id="text-2">
+        <span class="label">PERSONAL</span>
+        <span class="line"></span>
+        <p>喜愛攝影與寫作，<br>
+        為生活的溫度創作。</p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // 取得元素
+    const bgWhite = document.getElementById('bg-white');
+    const bgBlack = document.getElementById('bg-black');
+    const text1 = document.getElementById('text-1');
+    const text2 = document.getElementById('text-2');
+
+    // 滾動監聽
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const progress = scrollY / windowHeight; // 0 ~ 2
+
+      // --- 背景動畫邏輯 ---
+      
+      // 階段 1: 白色背景從底部升起
+      let whiteProgress = (progress - 0.2) / 0.8;
+      whiteProgress = Math.min(Math.max(whiteProgress, 0), 1);
+      
+      bgWhite.style.transform = `translateY(${100 - (whiteProgress * 100)}%)`;
+
+      // 階段 2: 黑色背景從底部升起
+      let blackProgress = (progress - 1.2) / 0.8;
+      blackProgress = Math.min(Math.max(blackProgress, 0), 1);
+      
+      bgBlack.style.transform = `translateY(${100 - (blackProgress * 100)}%)`;
+
+
+      // --- 文字 Fade / Blur 切換邏輯 ---
+
+      // 重置所有文字狀態
+      text1.classList.remove('active', 'prev', 'next');
+      text2.classList.remove('active', 'prev', 'next');
+
+      if (progress < 0.4) {
+        // 首頁狀態
+        text1.classList.add('next');
+        text2.classList.add('next');
+      } 
+      else if (progress >= 0.4 && progress < 1.4) {
+        // 第一段文字出現 (配合白色背景)
+        text1.classList.add('active');
+        text2.classList.add('next');
+      } 
+      else {
+        // 第二段文字出現 (配合黑色背景回歸)
+        text1.classList.add('prev');
+        text2.classList.add('active');
+      }
+    });
+
+    // 初始化
+    window.dispatchEvent(new Event('scroll'));
+  </script>
+</body>
+</html>
