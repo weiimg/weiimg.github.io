@@ -147,14 +147,14 @@
                 phone: "0988 304 165",
                 email: "hi@weiimg.com",
                 taxId: "45671616",
-                address: "台中市大里區仁化里仁化路", 
+                address: "台中市大里區仁化里仁堤路8號", 
                 bankName: "合作金庫銀行大里分行(006)",
                 accountName: "昇頡廣告設計工程行",
                 accountNumber: "1025-717-079503"
             };
 
             const DEFAULT_TERMS_TEXT = `1. 報價內容為報價日起 **30天內有效**，若逾期限，則需重新報價。
-2. 本合約專案自訂金付款完成後啟動執行，單期費用為新台幣 **41,150元整**，訂金費用為 **10,000元整**。甲方須於成片完成後，30個工作天內匯款剩餘款項，若未在時間內完成付款，則須重新報價。
+2. 本合約專案自訂金付款完成後啟動執行，單期費用為新台幣 **XXXXX元整**，訂金費用為 **XXXXX元整**。甲方須於成片完成後，30個工作天內匯款剩餘款項，若未在時間內完成付款，則須重新報價。
 3. 本專案約定製作影片數量如上開約定，完成後本約即終止，若需續約由雙方另議。
 4. 本專案雙方約定，乙方拍攝完畢後，且甲方提供素材(品牌Logo等)後，由乙方進行排程，乙方將於收到素材後3個工作天內告知甲方排程製作時間及預訂完成時間，實際成品交付若因故延遲，雙方得另協調約定之，若遇素材需補拍則不在此限，雙方另視情況約定；若因甲方未提供素材或延遲提供時間，以致乙方無法如期完成製作，不視為乙方違約。
 5. 本專案經簽訂後，自報價日起算六個月內須完成，超出六個月期限甲方仍未提交素材即視同甲方放棄權利，乙方不退還款項。
@@ -168,11 +168,11 @@
             const [company, setCompany] = useState(DEFAULT_COMPANY);
             const [showBankInfo, setShowBankInfo] = useState(true);
             const [client, setClient] = useState({
-                name: "財團法人勵馨社會福利事業基金會雲林分事務所",
-                contact: "鄭專員",
-                phone: "05-537-0545",
-                email: "goh2421@goh.org.tw",
-                address: "雲林縣斗六市北平路192號"
+                name: "客戶",
+                contact: "客戶名稱",
+                phone: "00-0000-0000",
+                email: "mail",
+                address: "地址"
             });
             const [quoteInfo, setQuoteInfo] = useState({
                 number: "202510-2",
@@ -182,8 +182,8 @@
             const [items, setItems] = useState([
                 {
                     id: 1,
-                    name: "YouTube 長影音製作 (拍攝、後製)",
-                    description: "- 成品為7~10分鐘、Full HD 解析度、MP4檔案\n- 包含封面設計\n- 影片完成版提供 **2次** 修改次數\n- 初剪時程預計 **7~14天**",
+                    name: "項目",
+                    description: "描述",
                     quantity: 1,
                     price: 39190
                 }
