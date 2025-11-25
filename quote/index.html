@@ -27,28 +27,54 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 3px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #6b7280; }
 
-        /* 列印設定：隱藏編輯器，只顯示A4預覽區 */
+        /* --- 列印設定修正 --- */
         @media print {
+            /* 隱藏不需要的介面元素 */
             .no-print { display: none !important; }
+            
+            /* 重設 body 與 html */
+            body, html {
+                background-color: white !important;
+                height: auto !important;
+                overflow: visible !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* 強制預覽區填滿紙張，移除灰色背景與間距 */
             .print-area { 
                 display: block !important; 
-                width: 100%; 
+                position: absolute !important; 
+                top: 0 !important; 
+                left: 0 !important; 
+                width: 100% !important; 
                 height: auto !important;
-                position: absolute; 
-                top: 0; 
-                left: 0; 
-                margin: 0; 
-                padding: 0; 
-                background-color: white;
+                margin: 0 !important; 
+                padding: 0 !important; /* 關鍵：移除 p-8 */
+                background-color: white !important; /* 關鍵：移除 bg-gray-500 */
                 overflow: visible !important;
+                z-index: 9999;
             }
-            body { background-color: white; }
+
+            /* 重設 A4 模擬區塊，移除陰影與邊距 */
+            .A4 {
+                width: 100% !important;
+                max-width: none !important;
+                min-height: auto !important;
+                margin: 0 !important;
+                box-shadow: none !important; /* 關鍵：移除陰影造成的灰色邊框 */
+                border: none !important;
+                transform: none !important;
+            }
+
+            /* 設定紙張尺寸 */
             @page { size: A4; margin: 0; }
-            /* 強制列印背景色 */
+            
+            /* 強制列印背景色 (確保 Header 色塊出現) */
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
 
-        /* A4 紙張模擬 */
+        /* A4 紙張模擬 (螢幕顯示用) */
         .A4 {
             width: 210mm;
             min-height: 297mm;
@@ -214,18 +240,18 @@
         const App = () => {
             const DEFAULT_COMPANY = {
                 name: "昇頡廣告設計工程行",
-                services: "影音製作, 動畫設計, 視覺設計",
+                services: "影音製作, 動畫設計, 視覺形象",
                 contact: "林晉維",
                 phone: "0988 304 165",
                 email: "hi@weiimg.com",
                 taxId: "45671616",
-                address: "台中市大里區仁化里仁化路", 
+                address: "台中市大里區仁化里仁堤路8號", 
                 bankName: "合作金庫銀行大里分行(006)",
                 accountName: "昇頡廣告設計工程行",
                 accountNumber: "1025-717-079503"
             };
 
-            // 預設注意事項 (因為內容較多，所以輸入框預設會比較高)
+            // 預設注意事項
             const DEFAULT_TERMS_TEXT = `1. 報價內容為報價日起 **30天內有效**，若逾期限，則需重新報價。
 2. 本合約專案自訂金付款完成後啟動執行，訂金費用為總金額之 **30%** (或由雙方另議)。甲方須於成片完成後，30個工作天內匯款剩餘款項，若未在時間內完成付款，則須重新報價。
 3. 本專案約定製作影片數量如上開約定，完成後本約即終止，若需續約由雙方另議。
@@ -418,12 +444,12 @@
                                 <div className="grid grid-cols-1 gap-4">
                                     <div>
                                         <label className="block text-xs text-gray-400 mb-1">客戶名稱</label>
-                                        <input type="text" placeholder="客戶名稱" value={client.name} onChange={(e) => setClient({...client, name: e.target.value})} className="w-full bg-gray-700 rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none placeholder-gray-500" />
+                                        <input type="text" placeholder="" value={client.name} onChange={(e) => setClient({...client, name: e.target.value})} className="w-full bg-gray-700 rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none placeholder-gray-500" />
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-xs text-gray-400 mb-1">聯絡人</label>
-                                            <input type="text" placeholder="聯絡人" value={client.contact} onChange={(e) => setClient({...client, contact: e.target.value})} className="w-full bg-gray-700 rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none placeholder-gray-500" />
+                                            <input type="text" placeholder="" value={client.contact} onChange={(e) => setClient({...client, contact: e.target.value})} className="w-full bg-gray-700 rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none placeholder-gray-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs text-gray-400 mb-1">電話</label>
@@ -432,11 +458,11 @@
                                     </div>
                                     <div>
                                         <label className="block text-xs text-gray-400 mb-1">信箱</label>
-                                        <input type="text" placeholder="信箱" value={client.email} onChange={(e) => setClient({...client, email: e.target.value})} className="w-full bg-gray-700 rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none placeholder-gray-500" />
+                                        <input type="text" placeholder="client@example.com" value={client.email} onChange={(e) => setClient({...client, email: e.target.value})} className="w-full bg-gray-700 rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none placeholder-gray-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs text-gray-400 mb-1">地址</label>
-                                        <input type="text" placeholder="地址" value={client.address} onChange={(e) => setClient({...client, address: e.target.value})} className="w-full bg-gray-700 rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none placeholder-gray-500" />
+                                        <input type="text" placeholder="" value={client.address} onChange={(e) => setClient({...client, address: e.target.value})} className="w-full bg-gray-700 rounded px-3 py-2 border border-gray-600 focus:border-blue-500 focus:outline-none placeholder-gray-500" />
                                     </div>
                                 </div>
                             </section>
@@ -447,7 +473,7 @@
                                 <div className="grid grid-cols-3 gap-4">
                                     <div>
                                         <label className="block text-xs text-gray-400 mb-1">報價單號</label>
-                                        <input type="text" placeholder="報價單號" value={quoteInfo.number} onChange={(e) => setQuoteInfo({...quoteInfo, number: e.target.value})} className="w-full bg-gray-700 rounded px-3 py-2 border border-gray-600 focus:border-green-500 focus:outline-none placeholder-gray-500" />
+                                        <input type="text" placeholder="YYYY-MM-X" value={quoteInfo.number} onChange={(e) => setQuoteInfo({...quoteInfo, number: e.target.value})} className="w-full bg-gray-700 rounded px-3 py-2 border border-gray-600 focus:border-green-500 focus:outline-none placeholder-gray-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs text-gray-400 mb-1">報價日期</label>
