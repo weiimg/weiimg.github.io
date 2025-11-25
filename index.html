@@ -1,60 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="https://cdn.weiimg.com/linjinwei_resize.jpg" type="image/jpg" />
+  
+  <!-- 字型 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Noto+Serif+TC:wght@300;500&display=swap" rel="stylesheet">
   
-  <!-- ✅ 基本 SEO -->
-  <title>weiimg video prod.</title>
+  <!-- ✅ SEO & Meta -->
+  <title>WEIIMG Video Prod. - 林晉維</title>
   <meta name="description" content="WEIIMG 林晉維｜品牌形象、視覺創意、短影音製作" />
   <meta name="keywords" content="影像製作, 品牌設計, 動態設計, 短影音, weiimg" />
-  <link rel="canonical" href="https://weiimg.com" />
-
-  <!-- ✅ Open Graph for Social Sharing -->
+  
+  <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="WEIIMG 林晉維" />
   <meta property="og:description" content="短影音、品牌形象設計與影像製作服務。" />
   <meta property="og:url" content="https://weiimg.com" />
   <meta property="og:image" content="https://weiimg.com/preview.jpg" />
 
-  <!-- ✅ Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="WEIIMG 林晉維" />
-  <meta name="twitter:description" content="短影音、品牌形象設計與影像製作服務。" />
-  <meta name="twitter:image" content="https://weiimg.com/preview.jpg" />
-
-  <!-- ✅ JSON-LD 結構化資料（Schema.org） -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    "name": "Weiimg",
-    "url": "https://weiimg.com",
-    "sameAs": [
-      "https://www.instagram.com/wei_img",
-      "https://www.threads.net/@wei_img"
-    ],
-    "jobTitle": "影像製作",
-    "worksFor": {
-      "@type": "Organization",
-      "name": "WEIIMG"
-    }
-  }
-  </script>
-  
   <style>
+    :root {
+      --bg-black: #100F0F;
+      --bg-white: #EAE5D9;
+      --text-white: #FFFFFF;
+      --text-gray: #C7C0B4;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
+      width: 100%;
+      background-color: var(--bg-black);
+      font-family: "Instrument Serif", "Noto Serif TC", serif;
+      overscroll-behavior: none; /* 防止瀏覽器預設的橡皮筋效果 */
+    }
+
+    /* 初始狀態：Intro 模式 */
+    body.mode-intro {
       height: 100vh;
-      background: #100F0F;
-      color: #C7C0B4;
-      font-family: "Instrument Serif", serif;
+      overflow: hidden;
+    }
+
+    /* 滾動狀態：About 模式 */
+    body.mode-about {
+      height: 300vh; /* About 頁面需要的長度 */
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* =========================================
+       SECTION A: INTRO LAYER (index.html logic)
+       ========================================= */
+    #intro-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: 100; /* 最上層 */
+      background: var(--bg-black);
+      transition: transform 1s ease, opacity 0.8s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: auto; /* 預設接收滑鼠事件 */
+    }
+
+    /* 當進入 About 模式時，Intro 層往上滑出並消失 */
+    body.mode-about #intro-layer {
+      transform: translateY(-100%);
+      opacity: 0;
+      pointer-events: none;
     }
 
     .center-wrap, .next-section {
@@ -64,11 +84,14 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      pointer-events: none; /* 讓點擊穿透，除非是 h1 */
     }
+
+    .center-wrap h1 { pointer-events: auto; } /* 恢復 h1 的拖曳 */
 
     h1, h2 {
       margin: 0;
-      pointer-events: none;
+      color: var(--text-gray);
     }
 
     h1 {
@@ -78,25 +101,19 @@
       user-select: none;
       cursor: grab;
       transition: all 0.5s ease;
+      will-change: transform, opacity, filter;
     }
 
     h1.dragging {
       filter: blur(12px);
       opacity: 0.55;
       cursor: grabbing;
+      transition: none; /* 拖曳時移除過渡以跟隨滑鼠 */
     }
 
-    h1.exit {
-      opacity: 0;
-      filter: blur(15px);
-      transform: translateY(-120px);
-    }
-
-    h1.enter {
-      opacity: 1;
-      filter: blur(0px);
-      transform: translateY(0);
-    }
+    /* Intro 動畫狀態 */
+    h1.exit { opacity: 0; filter: blur(15px); transform: translateY(-120px); }
+    h1.enter { opacity: 1; filter: blur(0px); transform: translateY(0); }
 
     h2 {
       font-size: 2.5rem;
@@ -105,77 +122,263 @@
       transform: translateY(60px);
       transition: all 1s ease;
     }
+    h2.enter { opacity: 1; filter: blur(0px); transform: translateY(0px); }
+    h2.exit { opacity: 0; filter: blur(15px); transform: translateY(60px); }
 
-    h2.enter {
-      opacity: 1;
-      filter: blur(0px);
-      transform: translateY(0px);
-    }
-
-    h2.exit {
-      opacity: 0;
-      filter: blur(15px);
-      transform: translateY(60px);
-    }
-
-    footer {
+    .intro-footer {
       font-size: 0.85rem;
       opacity: 0.5;
       text-align: center;
       position: absolute;
       bottom: 30px;
       width: 100%;
+      color: var(--text-gray);
     }
-
-    footer a {
-      color: #C7C0B4;
-      text-decoration: none;
-    }
-
-    footer a:hover { opacity: 0.8; }
+    .intro-footer a { color: inherit; text-decoration: none; }
+    .intro-footer a:hover { opacity: 0.8; }
 
     @media (max-width: 768px) {
       h1 { font-size: 4rem; }
       h2 { font-size: 1.5rem; }
-      footer { font-size: 0.7rem; }
+    }
+
+
+    /* =========================================
+       SECTION B: ABOUT CONTENT (about.html logic)
+       ========================================= */
+    #about-layer {
+      position: fixed; /* 背景層固定 */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: 1; /* 在 Intro 之下 */
+      opacity: 0;
+      transition: opacity 1s ease 0.5s; /* 延遲顯示，等 Intro 移開 */
+    }
+
+    body.mode-about #about-layer {
+      opacity: 1;
+    }
+
+    /* 背景動畫層 */
+    .bg-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      will-change: transform;
+    }
+
+    .bg-1 { background-color: var(--bg-black); z-index: 1; }
+    
+    .bg-portrait {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: url('https://cdn.weiimg.com/portrait.jpg');
+      background-position: center;
+      background-size: cover;
+      opacity: 0.9;
+      mix-blend-mode: overlay;
+    }
+
+    .intro-caption {
+      position: absolute;
+      bottom: 40px; left: 40px;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+      font-family: "Noto Serif TC", serif;
+      letter-spacing: 0.05em;
+      z-index: 2;
+    }
+
+    .bg-2 { background-color: var(--bg-white); z-index: 2; transform: translateY(100%); }
+    .bg-3 { background-color: var(--bg-black); z-index: 3; transform: translateY(100%); }
+
+    /* 固定內容層 (標題、文字) */
+    .fixed-content {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100vh;
+      z-index: 10;
+      mix-blend-mode: difference;
+      color: var(--text-white);
+      display: flex;
+      flex-direction: column;
+      padding: 40px;
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      width: 100%;
+    }
+
+    .brand-name {
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+      text-decoration: none;
+      color: inherit;
+      pointer-events: auto;
+    }
+
+    .page-title {
+      font-size: 8vw;
+      line-height: 0.9;
+      text-align: right;
+      opacity: 0;
+      /* 只有當 body.mode-about 時才觸發 fade in */
+      transform: translateY(20px);
+      transition: opacity 1.5s ease, transform 1.5s ease;
+    }
+
+    body.mode-about .page-title {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .center-text-container {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      max-width: 600px;
+      text-align: left; 
+      padding: 20px;
+    }
+
+    .text-slide {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      opacity: 0;
+      filter: blur(15px);
+      transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+      font-family: "Noto Serif TC", serif;
+      font-size: 1.6rem;
+      line-height: 1.8;
+      font-weight: 300;
+    }
+
+    .text-slide.active { opacity: 1; filter: blur(0px); transform: translate(-50%, -50%) scale(1); }
+    .text-slide.prev { opacity: 0; filter: blur(10px); transform: translate(-50%, -60%); }
+    .text-slide.next { opacity: 0; filter: blur(10px); transform: translate(-50%, -40%); }
+
+    .label {
+      font-family: "Instrument Serif", serif;
+      font-size: 1rem;
+      opacity: 0.6;
+      margin-bottom: 25px;
+      display: block;
+      letter-spacing: 0.05em;
+    }
+
+    .line {
+      width: 60px; height: 1px;
+      background: currentColor;
+      margin-bottom: 30px; display: block;
+    }
+
+    @media (max-width: 768px) {
+      .page-title { font-size: 15vw; }
+      .text-slide { font-size: 1.25rem; width: 85%; }
+      .fixed-content { padding: 20px; }
+      .intro-caption { left: 20px; bottom: 20px; }
     }
   </style>
 </head>
-<body>
 
-  <div class="center-wrap">
-    <h1 id="drag">this is weiimg.</h1>
+<!-- 預設狀態為 Intro -->
+<body class="mode-intro">
+
+  <!-- ==================== INTRO LAYER ==================== -->
+  <div id="intro-layer">
+    <div class="center-wrap">
+      <h1 id="drag">this is weiimg.</h1>
+    </div>
+
+    <div class="next-section">
+      <h2 id="subtitle">video production</h2>
+    </div>
+
+    <div class="intro-footer">
+      <a href="mailto:hi@weiimg.com">hi@weiimg.com</a>
+    </div>
   </div>
 
-  <div class="next-section">
-    <h2 id="subtitle">video production</h2>
+
+  <!-- ==================== ABOUT LAYER ==================== -->
+  <div id="about-layer">
+    <!-- 背景層 -->
+    <div class="bg-layer bg-1">
+      <div class="bg-portrait"></div>
+      <div class="intro-caption">weiimg, 林晉維</div>
+    </div>
+    <div class="bg-layer bg-2" id="bg-white"></div>
+    <div class="bg-layer bg-3" id="bg-black"></div>
+
+    <!-- 內容層 -->
+    <div class="fixed-content">
+      <div class="header-top">
+        <!-- 點擊 Logo 可以強制回到開頭 -->
+        <a href="#" class="brand-name" onclick="forceIntro(); return false;">WEIIMG</a>
+        <div class="page-title">About<br>Me.</div>
+      </div>
+
+      <div class="center-text-container">
+        <!-- Text 1 -->
+        <div class="text-slide" id="text-1">
+          <span class="label">PROFESSIONAL</span>
+          <span class="line"></span>
+          <p>專注於影像與設計共鳴的數位工作者。<br><br>
+          擅長影片製作、影音剪輯、視覺設計，<br>
+          在品牌及行銷領域擁有豐富的專案執行經驗。</p>
+        </div>
+        <!-- Text 2 -->
+        <div class="text-slide" id="text-2">
+          <span class="label">PERSONAL</span>
+          <span class="line"></span>
+          <p>喜愛攝影與寫作，<br>
+          為生活的溫度創作。</p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <footer><a href="mailto:hi@weiimg.com">hi@weiimg.com</a></footer>
 
 <script>
+/* =========================================
+   PART 1: INTRO LOGIC (Drag & State)
+   ========================================= */
 const el = document.getElementById("drag");
 const subtitle = document.getElementById("subtitle");
+const body = document.body;
 
+// Intro State: "first" (Title), "second" (Subtitle), "done" (Moved to About)
+let introState = "first"; 
+let wheelCooldown = false;
+
+// --- Dragging Logic ---
 let isDragging = false;
-let startX = 0, startY = 0;
-let currentX = 0, currentY = 0;
-
-const baseX = 0;
-const baseY = 0;
+let startX = 0, startY = 0, currentX = 0, currentY = 0;
+const baseX = 0, baseY = 0;
 
 el.addEventListener("mousedown", startDrag);
 el.addEventListener("touchstart", startDrag, { passive:false });
 
 function startDrag(e){
+  if(introState !== "first") return; // 只有在第一階段可以拖曳
   e.preventDefault();
   isDragging = true;
   el.classList.add("dragging");
-
   const pos = e.touches ? e.touches[0] : e;
   startX = pos.clientX - currentX;
   startY = pos.clientY - currentY;
-
   document.addEventListener("mousemove", onDrag);
   document.addEventListener("mouseup", endDrag);
   document.addEventListener("touchmove", onDrag, { passive:false });
@@ -195,118 +398,198 @@ function endDrag(){
   el.classList.remove("dragging");
   document.removeEventListener("mousemove", onDrag);
   document.removeEventListener("touchmove", onDrag);
-
+  
+  // Spring Physics
   let vx = currentX * 0.035;
   let vy = currentY * 0.035;
-  const stiffness = 0.032;
-  const damping   = 0.15;
-  const threshold = 0.07;
+  const stiffness = 0.032, damping = 0.15, threshold = 0.07;
 
   function animate(){
+    if(isDragging) return; // Stop animation if drag starts again
     const ax = -stiffness * (currentX - baseX) - damping * vx;
     const ay = -stiffness * (currentY - baseY) - damping * vy;
-    vx += ax;
-    vy += ay;
-    currentX += vx;
-    currentY += vy;
+    vx += ax; vy += ay;
+    currentX += vx; currentY += vy;
     el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
     if (Math.abs(vx) > threshold || Math.abs(vy) > threshold){
       requestAnimationFrame(animate);
     } else {
-      currentX = baseX;
-      currentY = baseY;
+      currentX = baseX; currentY = baseY;
       el.style.transform = `translate3d(0,0,0)`;
     }
   }
-
   requestAnimationFrame(animate);
 }
 
-// ✅ 狀態管理
-let currentState = "first"; // "first" or "second"
-let wheelCooldown = false;
+// --- Global Interaction Controller (Wheel & Touch) ---
+// 負責處理 Intro 狀態切換 以及 Intro <-> About 的橋接
 
-// 定義跳轉目標頁面 (請確保你有 about.html 或是改成你的目標網址)
-const ABOUT_PAGE_URL = "https://weiimg.com/about"; 
-
-// 🟢 滾輪監聽 (Desktop)
 window.addEventListener("wheel", (e) => {
   if (wheelCooldown) return;
 
-  // 往下滑 (e.deltaY > 0)
+  // 🔽 向下滾動
   if (e.deltaY > 20) {
-    if (currentState === "first") {
-      // 第一段 -> 切換到第二段
-      el.classList.add("exit");
-      el.classList.remove("enter");
-      subtitle.classList.add("enter");
-      subtitle.classList.remove("exit");
-      currentState = "second";
-      wheelCooldown = true;
-      setTimeout(() => wheelCooldown = false, 600);
-    } else if (currentState === "second") {
-      // 第二段 -> 跳轉到 About 頁面
-      // 這裡可以選擇不設 cooldown 直接跳，或者稍微延遲
-      window.location.href = ABOUT_PAGE_URL;
-      wheelCooldown = true; 
+    if (introState === "first") {
+      // 1 -> 2
+      changeIntroState("second");
+    } else if (introState === "second") {
+      // 2 -> About (3)
+      enterAboutMode();
     }
   } 
-  // 往上滑 (e.deltaY < 0)
-  else if (e.deltaY < -20 && currentState === "second") {
-    // 第二段 -> 切回第一段
-    el.classList.add("enter");
-    el.classList.remove("exit");
-    subtitle.classList.add("exit");
-    subtitle.classList.remove("enter");
-    currentState = "first";
-    wheelCooldown = true;
-    setTimeout(() => wheelCooldown = false, 600);
+  // 🔼 向上滾動
+  else if (e.deltaY < -20) {
+    if (introState === "second") {
+      // 2 -> 1
+      changeIntroState("first");
+    } else if (introState === "done") {
+      // About -> 2 (只有在 About 頂部時才觸發)
+      if (window.scrollY <= 0) {
+        exitAboutMode();
+      }
+    }
   }
-});
+}, { passive: false });
 
-// 📱 手機觸控監聽 (Mobile)
+// 手機觸控支援
 let touchStartY = 0;
-
 window.addEventListener("touchstart", (e) => {
   touchStartY = e.touches[0].clientY;
 }, { passive: false });
 
 window.addEventListener("touchend", (e) => {
   if (wheelCooldown) return;
-
   const touchEndY = e.changedTouches[0].clientY;
-  const deltaY = touchStartY - touchEndY; // 正值表示手指向上滑動 (內容往下走)
+  const deltaY = touchStartY - touchEndY; // 正值=向上滑(下個內容)
 
-  if (deltaY > 30) {
-    // 手指往上滑 (類似滾輪往下)
-    if (currentState === "first") {
-      // 切換到第二段
-      el.classList.add("exit");
-      el.classList.remove("enter");
-      subtitle.classList.add("enter");
-      subtitle.classList.remove("exit");
-      currentState = "second";
-      wheelCooldown = true;
-      setTimeout(() => wheelCooldown = false, 600);
-    } else if (currentState === "second") {
-      // 在第二段繼續往下滑 -> 跳轉 About
-      window.location.href = ABOUT_PAGE_URL;
-      wheelCooldown = true;
-    }
-  } else if (deltaY < -30 && currentState === "second") {
-    // 手指往下滑 -> 回到第一段
+  if (deltaY > 30) { // 下個內容
+    if (introState === "first") changeIntroState("second");
+    else if (introState === "second") enterAboutMode();
+  } else if (deltaY < -30) { // 上個內容
+    if (introState === "second") changeIntroState("first");
+    else if (introState === "done" && window.scrollY <= 0) exitAboutMode();
+  }
+}, { passive: false });
+
+
+function changeIntroState(newState) {
+  wheelCooldown = true;
+  if (newState === "second") {
+    el.classList.add("exit");
+    el.classList.remove("enter");
+    subtitle.classList.add("enter");
+    subtitle.classList.remove("exit");
+    introState = "second";
+  } else if (newState === "first") {
     el.classList.add("enter");
     el.classList.remove("exit");
     subtitle.classList.add("exit");
     subtitle.classList.remove("enter");
-    currentState = "first";
-    wheelCooldown = true;
-    setTimeout(() => wheelCooldown = false, 600);
+    introState = "first";
   }
-}, { passive: false });
+  setTimeout(() => wheelCooldown = false, 600);
+}
+
+function enterAboutMode() {
+  wheelCooldown = true;
+  introState = "done";
   
+  // 切換 CSS class 來觸發轉場
+  body.classList.remove("mode-intro");
+  body.classList.add("mode-about");
+  
+  // 讓 subtitle 往上飛走
+  subtitle.classList.add("exit");
+  subtitle.classList.remove("enter");
+
+  // 確保滾動在頂部
+  window.scrollTo(0,0);
+  
+  setTimeout(() => wheelCooldown = false, 1000);
+}
+
+function exitAboutMode() {
+  wheelCooldown = true;
+  introState = "second";
+  
+  // 切換 CSS class
+  body.classList.remove("mode-about");
+  body.classList.add("mode-intro");
+  
+  // 讓 subtitle 回來
+  subtitle.classList.add("enter");
+  subtitle.classList.remove("exit");
+
+  setTimeout(() => wheelCooldown = false, 1000);
+}
+
+// 點擊 LOGO 強制回到開頭的輔助函式
+function forceIntro() {
+  window.scrollTo(0,0);
+  changeIntroState("first");
+  introState = "first"; // 強制重置
+  body.classList.remove("mode-about");
+  body.classList.add("mode-intro");
+  el.classList.add("enter");
+  el.classList.remove("exit");
+  subtitle.classList.remove("enter"); // 確保 subtitle 消失
+  subtitle.classList.add("exit");
+}
+
+/* =========================================
+   PART 2: ABOUT SCROLL LOGIC
+   ========================================= */
+const bgWhite = document.getElementById('bg-white');
+const bgBlack = document.getElementById('bg-black');
+const text1 = document.getElementById('text-1');
+const text2 = document.getElementById('text-2');
+
+window.addEventListener('scroll', () => {
+  // 只有在 About 模式下才計算動畫，節省效能
+  if (introState !== "done") return;
+
+  const scrollY = window.scrollY;
+  const windowHeight = window.innerHeight;
+  // 這裡的 progress 會決定動畫進度
+  // 我們希望 scrollY 0 的時候顯示第一張圖
+  const progress = scrollY / windowHeight; 
+
+  // --- 背景動畫 ---
+  // 階段 1: 白色背景從底部升起
+  let whiteProgress = (progress - 0.2) / 0.8;
+  whiteProgress = Math.min(Math.max(whiteProgress, 0), 1);
+  bgWhite.style.transform = `translateY(${100 - (whiteProgress * 100)}%)`;
+
+  // 階段 2: 黑色背景從底部升起
+  let blackProgress = (progress - 1.2) / 0.8;
+  blackProgress = Math.min(Math.max(blackProgress, 0), 1);
+  bgBlack.style.transform = `translateY(${100 - (blackProgress * 100)}%)`;
+
+  // --- 文字動畫 ---
+  text1.classList.remove('active', 'prev', 'next');
+  text2.classList.remove('active', 'prev', 'next');
+
+  if (progress < 0.4) {
+    // 剛進入 About，顯示人像背景，文字還未出現
+    text1.classList.add('next');
+    text2.classList.add('next');
+  } 
+  else if (progress >= 0.4 && progress < 1.4) {
+    // 白色背景 + Professional 文字
+    text1.classList.add('active');
+    text2.classList.add('next');
+  } 
+  else {
+    // 黑色背景 + Personal 文字
+    text1.classList.add('prev');
+    text2.classList.add('active');
+  }
+});
+
+// 初始化觸發一次
+window.dispatchEvent(new Event('scroll'));
+
 </script>
 
 </body>
 </html>
-
