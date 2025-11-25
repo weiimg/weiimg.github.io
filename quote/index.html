@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>報價單系統 | 57UDIO</title>
-
-     <!-- --- 1. 設定網頁 Icon (Favicon) --- -->
+    
+    <!-- --- 1. 設定網頁 Icon (Favicon) --- -->
     <link rel="icon" href="https://cdn.weiimg.com/quote_icon.png" type="image/png">
     <link rel="shortcut icon" href="https://cdn.weiimg.com/quote_icon.png" type="image/png">
 
-     <!-- --- 2. 設定網址預覽 (Open Graph / Social Media Preview) --- -->
-    <meta property="og:title" content="報價單系統｜57UTIO">
+    <!-- --- 2. 設定網址預覽 (Open Graph / Social Media Preview) --- -->
+    <meta property="og:title" content="報價單系統 | 57UDIO">
     <meta property="og:description" content="make a quotation.">
     <meta property="og:image" content="https://cdn.weiimg.com/quote_icon.png"> <!-- 預覽圖片，建議至少 1200x630 -->
     <meta property="og:url" content="https://weiimg.com/quote"> <!-- 您的網址 -->
     <meta property="og:type" content="website">
-    
+
     <!-- React Core -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -277,6 +277,7 @@
 
             const [company, setCompany] = useState(DEFAULT_COMPANY);
             const [showBankInfo, setShowBankInfo] = useState(true);
+            const [enableTax, setEnableTax] = useState(true); // 新增：營業稅啟用狀態
             
             // --- 客戶資料 (預設為空) ---
             const [client, setClient] = useState({
@@ -308,7 +309,7 @@
             const fileInputRef = useRef(null);
 
             const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
-            const tax = Math.round(subtotal * 0.05);
+            const tax = enableTax ? Math.round(subtotal * 0.05) : 0; // 根據啟用狀態計算稅額
             const total = subtotal + tax;
 
             const handleItemChange = (id, field, value) => {
@@ -346,6 +347,7 @@
                     items,
                     termsText,
                     showBankInfo,
+                    enableTax, // 儲存營業稅設定
                     timestamp: new Date().toISOString()
                 };
                 const jsonString = JSON.stringify(data, null, 2);
@@ -375,6 +377,7 @@
                         if (data.items) setItems(data.items);
                         if (data.termsText) setTermsText(data.termsText);
                         if (data.showBankInfo !== undefined) setShowBankInfo(data.showBankInfo);
+                        if (data.enableTax !== undefined) setEnableTax(data.enableTax); // 讀取營業稅設定
                         
                         alert("報價單資料已成功載入！");
                     } catch (error) {
@@ -435,8 +438,8 @@
                             {/* 基本設定 */}
                             <section>
                                 <h3 className="text-lg font-semibold mb-4 text-gray-300 border-l-4 border-pink-500 pl-2">基本設定</h3>
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-2 bg-gray-700 p-3 rounded">
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2 bg-gray-700 p-3 rounded hover:bg-gray-600 transition-colors">
                                         <input 
                                             type="checkbox" 
                                             id="showBankInfo"
@@ -444,7 +447,18 @@
                                             onChange={(e) => setShowBankInfo(e.target.checked)}
                                             className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
                                         />
-                                        <label htmlFor="showBankInfo" className="text-sm cursor-pointer select-none">顯示匯款資訊與公司用印</label>
+                                        <label htmlFor="showBankInfo" className="text-sm cursor-pointer select-none flex-grow">顯示匯款資訊與公司用印</label>
+                                    </div>
+                                    {/* 新增：營業稅開關 */}
+                                    <div className="flex items-center gap-2 bg-gray-700 p-3 rounded hover:bg-gray-600 transition-colors">
+                                        <input 
+                                            type="checkbox" 
+                                            id="enableTax"
+                                            checked={enableTax}
+                                            onChange={(e) => setEnableTax(e.target.checked)}
+                                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+                                        />
+                                        <label htmlFor="enableTax" className="text-sm cursor-pointer select-none flex-grow">啟用 5% 營業稅</label>
                                     </div>
                                 </div>
                             </section>
@@ -642,15 +656,20 @@
                                                 <span>小計 Subtotal</span>
                                                 <span>${subtotal.toLocaleString()}</span>
                                             </div>
-                                            <div className="flex justify-between text-sm text-gray-600 mb-2 pb-1 border-b border-gray-300">
-                                                <span>營業稅 Tax (5%)</span>
-                                                <span>${tax.toLocaleString()}</span>
-                                            </div>
+                                            {/* 條件渲染：只有在啟用稅額時才顯示此列 */}
+                                            {enableTax && (
+                                                <div className="flex justify-between text-sm text-gray-600 mb-2 pb-1 border-b border-gray-300">
+                                                    <span>營業稅 Tax (5%)</span>
+                                                    <span>${tax.toLocaleString()}</span>
+                                                </div>
+                                            )}
                                             <div className="flex justify-between items-baseline">
                                                 <span className="text-lg font-bold text-gray-800">總計 Total</span>
                                                 <span className="text-2xl font-black text-black">${total.toLocaleString()}</span>
                                             </div>
-                                            <div className="text-right text-[10px] text-gray-400 mt-1">(含稅價格)</div>
+                                            <div className="text-right text-[10px] text-gray-400 mt-1">
+                                                {enableTax ? "(含稅價格)" : "(未稅價格)"}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -689,13 +708,13 @@
                                                         <span className="text-[10px] text-gray-300 transform -rotate-12">公司用印處<br/>Company Stamp</span>
                                                     </div>
                                                 )}
-                                                
+                                                <p className="text-[10px] text-gray-400">統編: {company.taxId}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="text-center text-[9px] text-gray-300 mt-4 pt-2">
-                                    © {new Date().getFullYear()} {company.brand} weiimg 報價單製作日期: {new Date().toLocaleString('zh-TW')}
+                                    © {new Date().getFullYear()} {company.brand} weiimg 報價單製作日期：{new Date().toLocaleString('zh-TW')}
                                 </div>
                             </footer>
                         </div>
