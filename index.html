@@ -222,34 +222,49 @@ function endDrag(){
   requestAnimationFrame(animate);
 }
 
-// ✅ 雙向 wheel 切換動畫
+// ✅ 狀態管理
 let currentState = "first"; // "first" or "second"
 let wheelCooldown = false;
 
+// 定義跳轉目標頁面 (請確保你有 about.html 或是改成你的目標網址)
+const ABOUT_PAGE_URL = "weiimg.com/about"; 
+
+// 🟢 滾輪監聽 (Desktop)
 window.addEventListener("wheel", (e) => {
   if (wheelCooldown) return;
 
-  if (e.deltaY > 20 && currentState === "first") {
-    // 往下切換到第二段
-    el.classList.add("exit");
-    el.classList.remove("enter");
-    subtitle.classList.add("enter");
-    subtitle.classList.remove("exit");
-    currentState = "second";
-  } else if (e.deltaY < -20 && currentState === "second") {
-    // 往上切回第一段
+  // 往下滑 (e.deltaY > 0)
+  if (e.deltaY > 20) {
+    if (currentState === "first") {
+      // 第一段 -> 切換到第二段
+      el.classList.add("exit");
+      el.classList.remove("enter");
+      subtitle.classList.add("enter");
+      subtitle.classList.remove("exit");
+      currentState = "second";
+      wheelCooldown = true;
+      setTimeout(() => wheelCooldown = false, 600);
+    } else if (currentState === "second") {
+      // 第二段 -> 跳轉到 About 頁面
+      // 這裡可以選擇不設 cooldown 直接跳，或者稍微延遲
+      window.location.href = ABOUT_PAGE_URL;
+      wheelCooldown = true; 
+    }
+  } 
+  // 往上滑 (e.deltaY < 0)
+  else if (e.deltaY < -20 && currentState === "second") {
+    // 第二段 -> 切回第一段
     el.classList.add("enter");
     el.classList.remove("exit");
     subtitle.classList.add("exit");
     subtitle.classList.remove("enter");
     currentState = "first";
+    wheelCooldown = true;
+    setTimeout(() => wheelCooldown = false, 600);
   }
-
-  wheelCooldown = true;
-  setTimeout(() => wheelCooldown = false, 600); // 防連續觸發
 });
 
-  // 📱 手機觸控支援：滑動觸發動畫切換
+// 📱 手機觸控監聽 (Mobile)
 let touchStartY = 0;
 
 window.addEventListener("touchstart", (e) => {
@@ -260,34 +275,37 @@ window.addEventListener("touchend", (e) => {
   if (wheelCooldown) return;
 
   const touchEndY = e.changedTouches[0].clientY;
-  const deltaY = touchStartY - touchEndY;
+  const deltaY = touchStartY - touchEndY; // 正值表示手指向上滑動 (內容往下走)
 
-  if (deltaY > 30 && currentState === "first") {
-    // 手指往上滑 → 切到第二段
-    el.classList.add("exit");
-    el.classList.remove("enter");
-    subtitle.classList.add("enter");
-    subtitle.classList.remove("exit");
-    currentState = "second";
+  if (deltaY > 30) {
+    // 手指往上滑 (類似滾輪往下)
+    if (currentState === "first") {
+      // 切換到第二段
+      el.classList.add("exit");
+      el.classList.remove("enter");
+      subtitle.classList.add("enter");
+      subtitle.classList.remove("exit");
+      currentState = "second";
+      wheelCooldown = true;
+      setTimeout(() => wheelCooldown = false, 600);
+    } else if (currentState === "second") {
+      // 在第二段繼續往下滑 -> 跳轉 About
+      window.location.href = ABOUT_PAGE_URL;
+      wheelCooldown = true;
+    }
   } else if (deltaY < -30 && currentState === "second") {
-    // 手指往下滑 → 回到第一段
+    // 手指往下滑 -> 回到第一段
     el.classList.add("enter");
     el.classList.remove("exit");
     subtitle.classList.add("exit");
     subtitle.classList.remove("enter");
     currentState = "first";
+    wheelCooldown = true;
+    setTimeout(() => wheelCooldown = false, 600);
   }
-
-  wheelCooldown = true;
-  setTimeout(() => wheelCooldown = false, 600);
 }, { passive: false });
-
   
 </script>
 
 </body>
 </html>
-
-
-
-
