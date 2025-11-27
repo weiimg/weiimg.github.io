@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客戶資訊填寫與發票需求</title>
+    <!-- 引入 Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 設定字體為 Inter (預設) 或 sans-serif */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fc;
+        }
+        /* 隱藏未激活的步驟 */
+        .step-content {
+            display: none;
+            /* 隱藏但保持佈局流暢 */
+        }
+        /* 顯示當前激活的步驟 */
+        .step-content.active {
+            display: block;
+            /* 觸發動畫 */
+            animation: fadeInSlideIn 0.4s ease-out forwards; 
+        }
+        /* 步驟指示器樣式 */
+        .step-indicator {
+            @apply transition duration-300;
+        }
+        .step-indicator.active {
+            background-color: #2563eb; /* 藍色 */
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* 動畫定義：淡入並向上輕微滑動 */
+        @keyframes fadeInSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- 主表單容器 -->
+    <div class="w-full max-w-2xl bg-white shadow-xl rounded-xl">
+        
+        <!-- Logo 區域：深色背景以顯示白色 Logo -->
+        <div class="bg-gray-800 rounded-t-xl p-6 flex justify-center">
+            <img src="https://cdn.weiimg.com/57udio_logo_s.png" alt="公司 Logo" class="h-10 onerror='this.onerror=null;this.src=\"https://placehold.co/150x40/374151/FFFFFF?text=Logo\"'">
+        </div>
+        
+        <!-- 表單內容 wrapper -->
+        <div class="p-8 md:p-10">
+
+            <!-- 步驟指示器 (僅在 Step 1-4 顯示) -->
+            <div id="step-indicators" class="flex justify-between items-center mb-10" style="display: none;">
+                <div id="ind-1" class="step-indicator flex-1 text-center py-2 rounded-full mr-2 bg-gray-100 text-gray-500">聯絡資訊</div>
+                <div id="ind-2" class="step-indicator flex-1 text-center py-2 rounded-full mx-2 bg-gray-100 text-gray-500">公司資訊</div>
+                <div id="ind-3" class="step-indicator flex-1 text-center py-2 rounded-full mx-2 bg-gray-100 text-gray-500">發票需求</div>
+                <div id="ind-4" class="step-indicator flex-1 text-center py-2 rounded-full ml-2 bg-gray-100 text-gray-500">最終確認</div>
+            </div>
+
+            <!-- 報價單表單 (使用 POST 提交，action 已設置為 Formspree URL) -->
+            <form id="quotationForm" method="POST" action="https://formspree.io/f/xovojprv" class="space-y-6">
+
+                <!-- 步驟 0: 歡迎頁面與隱私聲明 (新的起始頁) -->
+                <div id="step-0" class="step-content active">
+                    <h1 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">您好，很高興能與您合作！</h1>
+                    <p class="text-gray-500 mb-4 text-center">請依照步驟填寫您的聯絡、公司及發票資訊。</p>
+
+                    <div class="flex justify-center mt-10">
+                        <button type="button" onclick="nextStep()" 
+                                class="px-8 py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition duration-150 shadow-md">
+                            開始填寫 &rarr;
+                        </button>
+                    </div>
+
+                    <!-- 隱私聲明 (已移除紅框，並移到按鈕下方) -->
+                    <p class="text-xs text-gray-500 mt-8 text-center px-4 py-1">
+                        本資料保證僅用於報價單及發票開立相關事項。
+                    </p>
+                </div>
+
+                <!-- 步驟 1: 聯絡資訊 -->
+                <div id="step-1" class="step-content">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">聯絡人資訊</h2>
+                    
+                    <div class="mb-4">
+                        <label for="contactName" class="block text-sm font-medium text-gray-700">聯絡人姓名 <span class="text-red-500">*</span></label>
+                        <input type="text" id="contactName" name="聯絡人姓名" required 
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                            placeholder="請輸入您的姓名">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="contactPhone" class="block text-sm font-medium text-gray-700">聯絡電話 <span class="text-red-500">*</span></label>
+                        <input type="tel" id="contactPhone" name="聯絡電話" required 
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                            placeholder="09xx-xxxxxx">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="contactEmail" class="block text-sm font-medium text-gray-700">Email (電子郵件) <span class="text-red-500">*</span></label>
+                        <input type="email" id="contactEmail" name="Email" required 
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                            placeholder="yourname@example.com">
+                    </div>
+                </div>
+
+                <!-- 步驟 2: 公司/地址資訊 -->
+                <div id="step-2" class="step-content">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">公司與地址資訊</h2>
+
+                    <div class="mb-4">
+                        <label for="companyName" class="block text-sm font-medium text-gray-700">公司/組織抬頭 <span class="text-red-500">*</span></label>
+                        <input type="text" id="companyName" name="公司抬頭" required 
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                            placeholder="請輸入公司完整名稱">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="taxID" class="block text-sm font-medium text-gray-700">統一編號/稅號 <span class="text-red-500">*</span></label>
+                        <input type="text" id="taxID" name="統一編號" required 
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                            placeholder="8位數字">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="companyAddress" class="block text-sm font-medium text-gray-700">公司地址 (或發票寄送地址) <span class="text-red-500">*</span></label>
+                        <input type="text" id="companyAddress" name="公司地址" required 
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                            placeholder="請輸入完整的縣市、鄉鎮及街路門牌">
+                    </div>
+                </div>
+
+                <!-- 步驟 3: 發票類型 -->
+                <div id="step-3" class="step-content">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">發票開立需求</h2>
+                    
+                    <div class="space-y-4">
+                        <p class="text-sm font-medium text-gray-700 mb-2">是否需要開立發票？ <span class="text-red-500">*</span></p>
+                        
+                        <!-- Radio Button Group: 是否開立發票 -->
+                        <div class="flex items-center space-x-6">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="是否開立發票" value="是" checked onchange="toggleInvoiceType(true)"
+                                    class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-2 text-gray-700">是 (需要)</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="是否開立發票" value="否" onchange="toggleInvoiceType(false)"
+                                    class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                <span class="ml-2 text-gray-700">否 (無需開立)</span>
+                            </label>
+                        </div>
+
+                        <!-- 發票類型選擇 (只有在需要開立時才顯示) -->
+                        <div id="invoiceTypeSelection" class="pt-4 border-t mt-4">
+                            <p class="text-sm font-medium text-gray-700 mb-2">請選擇發票類型：</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-blue-50 transition">
+                                    <input type="radio" name="發票類型" value="三聯式發票 (含統編)" checked
+                                        class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                    <span class="ml-3 text-gray-700">三聯式發票 (公司報帳，需填寫統編)</span>
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-blue-50 transition">
+                                    <input type="radio" name="發票類型" value="二聯式發票 (個人消費)"
+                                        class="form-radio h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                    <span class="ml-3 text-gray-700">二聯式發票 (個人消費，無需統編)</span>
+                                </label>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <label for="invoiceNotes" class="block text-sm font-medium text-gray-700">發票備註 (選填)</label>
+                                <textarea id="invoiceNotes" name="發票備註" rows="2" 
+                                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                                        placeholder="例如：其他特殊需求"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步驟 4: 資料檢視與確認 (最終送出步驟) -->
+                <div id="step-4" class="step-content">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">最終資料確認</h2>
+                    <p class="text-gray-600 mb-6">請仔細核對以下資訊，確認無誤後即可送出。</p>
+
+                    <div id="reviewContent" class="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <!-- 檢視內容將由 JavaScript 動態插入 -->
+                        <p class="text-center text-gray-500">正在準備檢視內容...</p>
+                    </div>
+                    
+                    <!-- 隱藏的送出按鈕，只在 Step 4 顯示 -->
+                    <button type="submit" id="submitButton" class="w-full mt-8 px-4 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-300 shadow-md">
+                        我已經確認無誤，送出資訊
+                    </button>
+                </div>
+
+                <!-- 步驟 5: 感謝頁面 (提交成功後顯示) -->
+                <div id="step-5" class="step-content text-center py-12">
+                    <svg class="w-16 h-16 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h2 class="text-3xl font-extrabold text-gray-900 mt-4 mb-2">感謝您的協助！</h2>
+                    <p class="text-lg text-gray-600">您的客戶資訊和發票需求已成功送出。</p>
+                    <p class="text-gray-500 mt-4">我們會盡快處理您的報價請求，請留意您的電子郵件信箱，謝謝！</p>
+                </div>
+
+
+                <!-- 導航按鈕 (僅在 Step 1-4 顯示) -->
+                <div class="flex justify-between pt-6 border-t border-gray-100" style="display: none;">
+                    <button type="button" id="prevButton" onclick="prevStep()" 
+                            class="px-6 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition duration-150 shadow-sm" style="visibility: hidden;">
+                        &larr; 上一步
+                    </button>
+                    <button type="button" id="nextButton" onclick="nextStep()" 
+                            class="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition duration-150 shadow-md">
+                        下一步 &rarr;
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer 版權資訊 -->
+    <div class="w-full max-w-2xl text-center mt-6 text-gray-500 text-sm">
+        &copy; weiimg.com 2025
+    </div>
+
+    <!-- JavaScript 邏輯 -->
+    <script>
+        // --- 步驟設定 ---
+        const WELCOME_STEP = 0;
+        const LAST_FORM_STEP = 4; // 最終檢視與送出步驟
+        const THANK_YOU_STEP = 5; // 感謝頁面步驟
+
+        // --- DOM 元素和狀態 ---
+        let currentStep = WELCOME_STEP;
+        const form = document.getElementById('quotationForm');
+        const nextButton = document.getElementById('nextButton');
+        const prevButton = document.getElementById('prevButton');
+        const submitButton = document.getElementById('submitButton');
+        const navButtonsContainer = document.querySelector('.flex.justify-between.pt-6'); // 導航按鈕容器
+
+        // 初始化：顯示第一個步驟 (Step 0)
+        showStep(currentStep);
+
+        /**
+         * 根據表單數據更新最終檢視頁的內容。
+         */
+        function updateReview() {
+            const reviewDiv = document.getElementById('reviewContent');
+            const formData = new FormData(form);
+            let html = '';
+
+            // 迭代表單數據
+            for (const [key, value] of formData.entries()) {
+                // 排除不重要的空白值
+                if (value.trim() !== '' || key === '發票類型') {
+                    
+                    if (key === '是否開立發票') {
+                        // 如果不需要開立發票，顯示確認訊息並停止後續的發票欄位顯示
+                        if (value === '否') {
+                             html += `<div class="p-2 border-l-4 border-yellow-500 bg-yellow-50">
+                                <span class="font-bold text-yellow-800">發票需求：</span> <span class="text-yellow-700">不需要開立發票</span>
+                            </div>`;
+                            reviewDiv.innerHTML = html;
+                            return; 
+                        }
+                    }
+
+                    // 正常的鍵值顯示 (排除是否開立發票這個 radio button 的欄位名)
+                    if (key !== '是否開立發票') {
+                         html += `<div class="flex justify-between border-b border-gray-200 py-1">
+                            <span class="font-medium text-gray-700 w-1/3">${key}：</span>
+                            <span class="text-gray-900 w-2/3 text-right font-semibold">${value}</span>
+                         </div>`;
+                    }
+                }
+            }
+            
+            if (html === '') {
+                html = '<p class="text-center text-red-500">尚未填寫任何資訊，請返回上一步。</p>';
+            }
+
+            reviewDiv.innerHTML = html;
+        }
+
+        /**
+         * 驗證當前步驟中的必填欄位。
+         * @param {number} step - 當前步驟編號 (1, 2, 3)
+         * @returns {boolean} - 驗證是否通過
+         */
+        function validateStep(step) {
+            let isValid = true;
+            const stepElement = document.getElementById(`step-${step}`);
+            const inputs = stepElement.querySelectorAll('input[required], textarea[required]');
+            
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    isValid = false;
+                    input.classList.add('border-red-500'); // 標記錯誤
+                } else {
+                    input.classList.remove('border-red-500'); // 清除錯誤標記
+                }
+            });
+
+            // 額外檢查 Step 3: 如果選擇「是」，必須選一個發票類型
+            if (step === 3) {
+                const needsInvoice = document.querySelector('input[name="是否開立發票"]:checked').value === '是';
+                if (needsInvoice) {
+                    const invoiceTypeSelected = document.querySelector('input[name="發票類型"]:checked');
+                    if (!invoiceTypeSelected) {
+                        isValid = false;
+                        // 實際應用中請使用 Modal 替代 console.error 提示用戶
+                        console.error('請選擇發票類型 (二聯式/三聯式)。');
+                    }
+                }
+            }
+
+            if (!isValid) {
+                console.error(`步驟 ${step} 驗證失敗：請檢查必填欄位。`);
+            }
+            return isValid;
+        }
+
+        /** 轉到下一個步驟 */
+        function nextStep() {
+            // 驗證邏輯只套用到 Step 1, 2, 3
+            if (currentStep > WELCOME_STEP && currentStep < LAST_FORM_STEP && !validateStep(currentStep)) {
+                console.error('請檢查必填欄位是否已填寫！');
+                return;
+            }
+
+            if (currentStep < LAST_FORM_STEP) {
+                currentStep++;
+            }
+            showStep(currentStep);
+        }
+
+        /** 轉到上一個步驟 */
+        function prevStep() {
+            if (currentStep > WELCOME_STEP) {
+                currentStep--;
+            }
+            showStep(currentStep);
+        }
+
+        /** 顯示特定步驟的內容 */
+        function showStep(step) {
+            // 1. 隱藏所有步驟，顯示當前步驟 (帶有動畫)
+            document.querySelectorAll('.step-content').forEach(el => {
+                el.classList.remove('active');
+                el.style.display = 'none';
+            });
+            
+            const nextStepElement = document.getElementById(`step-${step}`);
+            nextStepElement.style.display = 'block';
+            nextStepElement.classList.add('active'); 
+
+            // 2. 處理步驟指示器和導航按鈕的顯示/隱藏
+            const indicatorsContainer = document.getElementById('step-indicators');
+            
+            if (step === WELCOME_STEP || step === THANK_YOU_STEP) {
+                indicatorsContainer.style.display = 'none';
+                navButtonsContainer.style.display = 'none'; // 隱藏底部導航
+            } else {
+                indicatorsContainer.style.display = 'flex';
+                navButtonsContainer.style.display = 'flex'; // 顯示底部導航
+                
+                // 更新指示器，對應實際的 Step 1-4
+                document.querySelectorAll('.step-indicator').forEach((el, index) => {
+                    el.classList.remove('active', 'bg-blue-600', 'text-white', 'bg-gray-100', 'text-gray-500');
+                    if (index + 1 <= step) {
+                        el.classList.add('active', 'bg-blue-600', 'text-white'); // 已完成/當前
+                    } else {
+                        el.classList.add('bg-gray-100', 'text-gray-500'); // 未完成
+                    }
+                });
+            }
+
+            // 3. 處理導航按鈕和最終送出按鈕
+            prevButton.style.visibility = step > 1 ? 'visible' : 'hidden'; // Step 1 是表單填寫的第一步
+
+            if (step === LAST_FORM_STEP) { // Step 4 (Review)
+                nextButton.style.display = 'none';
+                submitButton.style.display = 'block';
+                updateReview(); // 進入最終檢視步驟時更新內容
+            } else {
+                nextButton.style.display = 'block';
+                submitButton.style.display = 'none';
+            }
+        }
+
+        /** 處理是否需要開立發票的選項切換邏輯 */
+        function toggleInvoiceType(needed) {
+            const typeSelection = document.getElementById('invoiceTypeSelection');
+            if (needed) {
+                typeSelection.style.display = 'block';
+                // 當選擇「是」時，確保三聯式被選中
+                document.querySelector('input[name="發票類型"][value="三聯式發票 (含統編)"]').checked = true;
+            } else {
+                typeSelection.style.display = 'none';
+                // 當選擇「否」時，清空發票類型選擇
+                document.querySelectorAll('input[name="發票類型"]').forEach(input => input.checked = false);
+            }
+        }
+        
+        // 初始化發票類型選擇顯示狀態
+        window.onload = () => {
+            // 確保在載入時，發票類型選擇是根據預設的「是」來顯示的
+            toggleInvoiceType(document.querySelector('input[name="是否開立發票"]:checked').value === '是');
+            showStep(WELCOME_STEP); // 從 Step 0 開始
+        };
+
+
+        // --- 表單提交處理：使用 Fetch API 避免頁面跳轉並顯示感謝頁 ---
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault(); // 阻止瀏覽器默認提交
+            
+            // 檢查是否在最終確認步驟
+            if (currentStep !== LAST_FORM_STEP) {
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = '送出中... 請稍候';
+            
+            try {
+                // 發送數據到 Formspree (Formspree 偏好 application/json for AJAX, 但 FormData 也可以)
+                const response = await fetch(form.action, {
+                    method: form.method,
+                    body: new FormData(form),
+                    headers: {
+                        'Accept': 'application/json' 
+                    }
+                });
+
+                if (response.ok) {
+                    // 成功提交：切換到感謝頁面
+                    currentStep = THANK_YOU_STEP;
+                    showStep(currentStep);
+                } else {
+                    // 提交失敗
+                    const errorText = response.statusText || '未知錯誤';
+                    console.error('提交失敗，請重試 (Formspree Error):', errorText);
+                    // 實際應用中應使用 Modal 替代 console.error 提示用戶
+                    // 這裡使用簡單的 JS 內建機制來確保即使在 Canvas 環境下也能有反饋
+                    setTimeout(() => alert('提交失敗，請檢查您的網路連線或重新整理頁面。'), 100); 
+                    submitButton.disabled = false;
+                    submitButton.textContent = '我已經確認無誤，送出資訊';
+                }
+            } catch (error) {
+                console.error('網路錯誤或提交失敗：', error);
+                setTimeout(() => alert('網路錯誤，無法送出資訊。'), 100);
+                submitButton.disabled = false;
+                submitButton.textContent = '我已經確認無誤，送出資訊';
+            }
+        });
+
+    </script>
+</body>
+</html>
