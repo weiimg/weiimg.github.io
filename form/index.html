@@ -557,7 +557,7 @@
             } catch (error) {
                 // 5. 網路錯誤 (如離線或 CORS 阻擋)
                 console.error('網路錯誤或提交失敗：', error);
-                displayStatus('網路連線錯誤，無法送出資訊。請檢查您的連線。', true);
+                displayStatus('提交失敗：請檢查網路連線或嘗試更換網路環境（例如：切換到手機網路）後再試一次。部分企業網路可能會阻擋此服務。', true);
             } finally {
                 // 6. 清理：隱藏 Loading 畫面，並在非成功狀態下啟用按鈕
                 loadingOverlay.classList.add('hidden'); // 隱藏滿版 Loading 畫面
