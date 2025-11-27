@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>填寫您的資訊 | 57UDIO</title>
-    <link rel="icon" type="image/svg+xml" href="https://cdn.weiimg.com/client_form.svg">
+    <!-- 網站圖標 (Favicon) 使用 SVG 格式 -->
+    <link rel="icon" type="image/svg+xml" href="https://cdn.weiimg.com/client_form_yellow.svg">
     <!-- 引入 Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -77,7 +78,7 @@
         <div class="p-8 md:p-10">
 
             <!-- 步驟指示器 (已調整顏色) -->
-            <div id="step-indicators" class="flex justify-between items-center mb-10" style="display: none;">
+            <div id="step-indicators" class="flex justify-between items-center mb-10 text-xs sm:text-sm" style="display: none;">
                 <div id="ind-1" class="step-indicator flex-1 text-center py-2 rounded-full mr-2 bg-gray-700 text-gray-400">聯絡資訊</div>
                 <div id="ind-2" class="step-indicator flex-1 text-center py-2 rounded-full mx-2 bg-gray-700 text-gray-400">公司資訊</div>
                 <div id="ind-3" class="step-indicator flex-1 text-center py-2 rounded-full mx-2 bg-gray-700 text-gray-400">發票需求</div>
@@ -89,7 +90,7 @@
 
                 <!-- 步驟 0: 歡迎頁面與隱私聲明 (新的起始頁) -->
                 <div id="step-0" class="step-content active">
-                    <h1 class="text-3xl font-extrabold text-white mb-6 text-center">您好，很高興能與您合作！</h1>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-white mb-6 text-center">您好，很高興能與您合作！</h1>
                     <p class="text-gray-400 mb-4 text-center">請依照步驟填寫您的聯絡、公司及發票資訊。</p>
 
                     <div class="flex justify-center mt-10">
