@@ -931,12 +931,17 @@ body.inner-page main {
   display: none;
   background: transparent;
   border: 0;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   padding: 0;
+  margin: -4px -8px -4px 0;
   cursor: pointer;
   position: relative;
   z-index: 102;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .nav-burger span {
   display: block;
@@ -1040,8 +1045,17 @@ body.nav-open .nav-burger span:nth-child(3) { transform: translateY(-6.5px) rota
 
   body.inner-page main { padding-top: 56px; }
 
-  /* ----- Hero (P1) ----- */
-  .hero { padding: 80px 20px 40px; min-height: auto; }
+  /* ----- Hero (P1) — full viewport on mobile ----- */
+  .hero {
+    padding: 0 20px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+  }
   .hero-brand { font-size: clamp(64px, 18vw, 120px); }
   .hero-tagline { padding: 20px; }
   .hero-micro { font-size: 11px; }

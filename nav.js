@@ -7,7 +7,9 @@
   if (!nav.querySelector('.nav-burger')) {
     const btn = document.createElement('button');
     btn.className = 'nav-burger';
+    btn.type = 'button';
     btn.setAttribute('aria-label', '選單');
+    btn.setAttribute('aria-expanded', 'false');
     btn.innerHTML = '<span></span><span></span><span></span>';
     nav.appendChild(btn);
   }
