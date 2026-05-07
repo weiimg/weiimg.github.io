@@ -1,595 +1,263 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="https://cdn.weiimg.com/linjinwei_resize.jpg" type="image/jpg" />
-  
-  <!-- 字型 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Noto+Serif+TC:wght@300;500&display=swap" rel="stylesheet">
-  
-  <!-- ✅ SEO & Meta -->
-  <title>WEIIMG Video Prod. - 林晉維</title>
-  <meta name="description" content="WEIIMG 林晉維｜品牌形象、視覺創意、短影音製作" />
-  <meta name="keywords" content="影像製作, 品牌設計, 動態設計, 短影音, weiimg" />
-  
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="WEIIMG 林晉維" />
-  <meta property="og:description" content="短影音、品牌形象設計與影像製作服務。" />
-  <meta property="og:url" content="https://weiimg.com" />
-  <meta property="og:image" content="https://weiimg.com/preview.jpg" />
-
-  <style>
-    :root {
-      --bg-black: #100F0F;
-      --bg-white: #EAE5D9;
-      --text-white: #FFFFFF;
-      --text-gray: #C7C0B4;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      background-color: var(--bg-black);
-      font-family: "Instrument Serif", "Noto Serif TC", serif;
-      overscroll-behavior: none; /* 防止瀏覽器預設的橡皮筋效果 */
-    }
-
-    /* 初始狀態：Intro 模式 */
-    body.mode-intro {
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* 滾動狀態：About 模式 */
-    body.mode-about {
-      height: 300vh; /* About 頁面需要的長度 */
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
-
-    /* =========================================
-       SECTION A: INTRO LAYER (index.html logic)
-       ========================================= */
-    #intro-layer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      z-index: 100; /* 最上層 */
-      background: var(--bg-black);
-      transition: transform 1s ease, opacity 0.8s ease;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      pointer-events: auto; /* 預設接收滑鼠事件 */
-    }
-
-    /* 當進入 About 模式時，Intro 層往上滑出並消失 */
-    body.mode-about #intro-layer {
-      transform: translateY(-100%);
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .center-wrap, .next-section {
-      position: absolute;
-      width: 100%;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      pointer-events: none; /* 讓點擊穿透，除非是 h1 */
-    }
-
-    .center-wrap h1 { pointer-events: auto; } /* 恢復 h1 的拖曳 */
-
-    h1, h2 {
-      margin: 0;
-      color: var(--text-gray);
-    }
-
-    h1 {
-      font-size: 9rem;
-      letter-spacing: -0.015em;
-      transform: translate3d(0,0,0);
-      user-select: none;
-      cursor: grab;
-      transition: all 0.5s ease;
-      will-change: transform, opacity, filter;
-    }
-
-    h1.dragging {
-      filter: blur(12px);
-      opacity: 0.55;
-      cursor: grabbing;
-      transition: none; /* 拖曳時移除過渡以跟隨滑鼠 */
-    }
-
-    /* Intro 動畫狀態 */
-    h1.exit { opacity: 0; filter: blur(15px); transform: translateY(-120px); }
-    h1.enter { opacity: 1; filter: blur(0px); transform: translateY(0); }
-
-    h2 {
-      font-size: 2.5rem;
-      opacity: 0;
-      filter: blur(15px);
-      transform: translateY(60px);
-      transition: all 1s ease;
-    }
-    h2.enter { opacity: 1; filter: blur(0px); transform: translateY(0px); }
-    h2.exit { opacity: 0; filter: blur(15px); transform: translateY(60px); }
-
-    .intro-footer {
-      font-size: 0.85rem;
-      opacity: 0.5;
-      text-align: center;
-      position: absolute;
-      bottom: 30px;
-      width: 100%;
-      color: var(--text-gray);
-    }
-    .intro-footer a { color: inherit; text-decoration: none; }
-    .intro-footer a:hover { opacity: 0.8; }
-
-    @media (max-width: 768px) {
-      h1 { font-size: 4rem; }
-      h2 { font-size: 1.5rem; }
-    }
-
-
-    /* =========================================
-       SECTION B: ABOUT CONTENT (about.html logic)
-       ========================================= */
-    #about-layer {
-      position: fixed; /* 背景層固定 */
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      z-index: 1; /* 在 Intro 之下 */
-      opacity: 0;
-      transition: opacity 1s ease 0.5s; /* 延遲顯示，等 Intro 移開 */
-    }
-
-    body.mode-about #about-layer {
-      opacity: 1;
-    }
-
-    /* 背景動畫層 */
-    .bg-layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      will-change: transform;
-    }
-
-    .bg-1 { background-color: var(--bg-black); z-index: 1; }
-    
-    .bg-portrait {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background-image: url('https://cdn.weiimg.com/portrait.jpg');
-      background-position: center;
-      background-size: cover;
-      opacity: 0.9;
-      mix-blend-mode: overlay;
-    }
-
-    .intro-caption {
-      position: absolute;
-      bottom: 40px; left: 40px;
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 0.9rem;
-      font-family: "Noto Serif TC", serif;
-      letter-spacing: 0.05em;
-      z-index: 2;
-    }
-
-    .bg-2 { background-color: var(--bg-white); z-index: 2; transform: translateY(100%); }
-    .bg-3 { background-color: var(--bg-black); z-index: 3; transform: translateY(100%); }
-
-    /* 固定內容層 (標題、文字) */
-    .fixed-content {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100vh;
-      z-index: 10;
-      mix-blend-mode: difference;
-      color: var(--text-white);
-      display: flex;
-      flex-direction: column;
-      padding: 40px;
-      box-sizing: border-box;
-      pointer-events: none;
-    }
-
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      width: 100%;
-    }
-
-    .brand-name {
-      font-size: 1.2rem;
-      letter-spacing: 1px;
-      text-decoration: none;
-      color: inherit;
-      pointer-events: auto;
-    }
-
-    .page-title {
-      font-size: 8vw;
-      line-height: 0.9;
-      text-align: right;
-      opacity: 0;
-      /* 只有當 body.mode-about 時才觸發 fade in */
-      transform: translateY(20px);
-      transition: opacity 1.5s ease, transform 1.5s ease;
-    }
-
-    body.mode-about .page-title {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .center-text-container {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 100%;
-      max-width: 600px;
-      text-align: left; 
-      padding: 20px;
-    }
-
-    .text-slide {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 100%;
-      opacity: 0;
-      filter: blur(15px);
-      transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
-      font-family: "Noto Serif TC", serif;
-      font-size: 1.6rem;
-      line-height: 1.8;
-      font-weight: 300;
-    }
-
-    .text-slide.active { opacity: 1; filter: blur(0px); transform: translate(-50%, -50%) scale(1); }
-    .text-slide.prev { opacity: 0; filter: blur(10px); transform: translate(-50%, -60%); }
-    .text-slide.next { opacity: 0; filter: blur(10px); transform: translate(-50%, -40%); }
-
-    .label {
-      font-family: "Instrument Serif", serif;
-      font-size: 1rem;
-      opacity: 0.6;
-      margin-bottom: 25px;
-      display: block;
-      letter-spacing: 0.05em;
-    }
-
-    .line {
-      width: 60px; height: 1px;
-      background: currentColor;
-      margin-bottom: 30px; display: block;
-    }
-
-    @media (max-width: 768px) {
-      .page-title { font-size: 15vw; }
-      .text-slide { font-size: 1.25rem; width: 85%; }
-      .fixed-content { padding: 20px; }
-      .intro-caption { left: 20px; bottom: 20px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="WEIIMG — 林晉維的創意工作室。品牌策略、創意內容、影像製作，從策略到執行一條龍服務。">
+<title>WEIIMG — Concept → Content</title>
+<link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<!-- 預設狀態為 Intro -->
-<body class="mode-intro">
-
-  <!-- ==================== INTRO LAYER ==================== -->
-  <div id="intro-layer">
-    <div class="center-wrap">
-      <h1 id="drag">this is weiimg.</h1>
-    </div>
-
-    <div class="next-section">
-      <h2 id="subtitle">video production</h2>
-    </div>
-
-    <div class="intro-footer">
-      <a href="mailto:hi@weiimg.com">hi@weiimg.com</a>
-    </div>
-  </div>
-
-
-  <!-- ==================== ABOUT LAYER ==================== -->
-  <div id="about-layer">
-    <!-- 背景層 -->
-    <div class="bg-layer bg-1">
-      <div class="bg-portrait"></div>
-      <div class="intro-caption">weiimg, 林晉維</div>
-    </div>
-    <div class="bg-layer bg-2" id="bg-white"></div>
-    <div class="bg-layer bg-3" id="bg-black"></div>
-
-    <!-- 內容層 -->
-    <div class="fixed-content">
-      <div class="header-top">
-        <!-- 點擊 Logo 可以強制回到開頭 -->
-        <a href="#" class="brand-name" onclick="forceIntro(); return false;">WEIIMG</a>
-        <div class="page-title">About<br>Me.</div>
-      </div>
-
-      <div class="center-text-container">
-        <!-- Text 1 -->
-        <div class="text-slide" id="text-1">
-          <span class="label">PROFESSIONAL</span>
-          <span class="line"></span>
-          <p>專注於影像與設計共鳴的數位工作者。<br><br>
-          擅長影片製作、影音剪輯、視覺設計，<br>
-          在品牌及行銷領域擁有豐富的專案執行經驗。</p>
+<nav class="nav">
+  <a href="index.html" class="nav-logo">WEIIMG<span class="reg">*</span><span class="arrow-line"></span></a>
+  <div class="nav-items">
+    <div class="nav-slide-wrap">
+      <div class="nav-slide-inner">
+        <div class="nav-row">
+          <span class="has-dropdown">WORK</span>
+          <a href="about/index.html">ABOUT</a>
+          <a href="blog/index.html">BLOG</a>
         </div>
-        <!-- Text 2 -->
-        <div class="text-slide" id="text-2">
-          <span class="label">PERSONAL</span>
-          <span class="line"></span>
-          <p>喜愛攝影與寫作，<br>
-          為生活的溫度創作。</p>
+        <div class="nav-row">
+          <a href="brand/index.html">品牌形象</a>
+          <a href="shortform/index.html">短影音</a>
+          <a href="video/index.html">影像製作</a>
         </div>
       </div>
     </div>
+    <div class="nav-cta-wrap">
+      <span class="nav-cta">FIND ME</span>
+      <div class="findme-dropdown">
+        <a href="mailto:hi@weiimg.com"><span class="fm-icon">✉</span>hi@weiimg.com</a>
+        <a href="https://instagram.com/wei_img" target="_blank" rel="noopener noreferrer"><span class="fm-icon">📷</span>Instagram</a>
+        <a href="https://threads.net/@wei_img" target="_blank" rel="noopener noreferrer"><span class="fm-icon">🧵</span>Threads</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-brand">
+      <span class="hero-star">*</span><span class="hero-text">WEIIMG</span>
+    </div>
+    <div class="hero-tagline">
+      <div class="hero-micro">concept → content</div>
+    </div>
+    <div class="hero-ticker">
+      <span>WEIIMG*</span>
+      <span>TPE (TWN)</span>
+      <span>/0026</span>
+      <span>CREATIVE STUDIO_</span>
+    </div>
+    <div class="hero-scroll">
+      <span>EXPLORE</span>
+      <div class="hero-scroll-arrow">&darr;</div>
+    </div>
+  </section>
+
+  <!-- 視差影片 -->
+  <div class="parallax-wrap">
+    <video class="parallax-video" src="assets/showreel.mp4" autoplay loop muted playsinline></video>
   </div>
 
+  <!-- 服務列表 -->
+  <div class="services-section">
+    <div class="services-nav">
+      <div class="services-nav-inner">
+        <a href="#svc-1" class="svc-nav-item active" data-index="0">
+          <span class="svc-nav-num">01</span>
+          <span class="svc-nav-title">品牌策略</span>
+          <span class="svc-nav-en">Brand Strategy</span>
+        </a>
+        <a href="#svc-2" class="svc-nav-item" data-index="1">
+          <span class="svc-nav-num">02</span>
+          <span class="svc-nav-title">創意內容</span>
+          <span class="svc-nav-en">Creative Content</span>
+        </a>
+        <a href="#svc-3" class="svc-nav-item" data-index="2">
+          <span class="svc-nav-num">03</span>
+          <span class="svc-nav-title">影像製作</span>
+          <span class="svc-nav-en">Film &amp; Motion</span>
+        </a>
+      </div>
+    </div>
+    <div class="services-panels">
+      <div class="svc-panel" id="svc-1">
+        <div class="svc-panel-en">BRAND STRATEGY</div>
+        <h3 class="svc-panel-title">品牌策略</h3>
+        <ul class="svc-panel-list">
+          <li>品牌策略與定位</li>
+          <li>商業攝影與美術</li>
+          <li>視覺設計 / Logo 規劃</li>
+          <li>社群內容策劃</li>
+        </ul>
+        <a href="brand/index.html" class="svc-panel-link">探索作品 &rarr;</a>
+      </div>
+      <div class="svc-panel" id="svc-2">
+        <div class="svc-panel-en">CREATIVE CONTENT</div>
+        <h3 class="svc-panel-title">創意內容</h3>
+        <ul class="svc-panel-list">
+          <li>短影音製作</li>
+          <li>短影音剪輯</li>
+          <li>社群圖文製作</li>
+          <li>內容策略規劃</li>
+        </ul>
+        <a href="shortform/index.html" class="svc-panel-link">探索作品 &rarr;</a>
+      </div>
+      <div class="svc-panel" id="svc-3">
+        <div class="svc-panel-en">FILM &amp; MOTION</div>
+        <h3 class="svc-panel-title">影像製作</h3>
+        <ul class="svc-panel-list">
+          <li>音樂 MV</li>
+          <li>紀錄影片</li>
+          <li>廣告腳本企劃</li>
+          <li>後製調色</li>
+        </ul>
+        <a href="video/index.html" class="svc-panel-link">探索作品 &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 合作品牌跑馬燈 -->
+  <div class="logo-marquee">
+    <h3>合作品牌</h3>
+    <div class="logo-marquee-track">
+      <div class="logo-marquee-strip">長條圖 Row 1 — 替換為實際圖檔</div>
+      <div class="logo-marquee-strip">長條圖 Row 1 — 替換為實際圖檔</div>
+    </div>
+    <div class="logo-marquee-track reverse">
+      <div class="logo-marquee-strip">長條圖 Row 2 — 替換為實際圖檔</div>
+      <div class="logo-marquee-strip">長條圖 Row 2 — 替換為實際圖檔</div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="contact">
+  <div class="contact-label">Let's collaborate!</div>
+  <div class="contact-email"><a href="mailto:hi@weiimg.com">hi@weiimg.com</a></div>
+  <a href="mailto:hi@weiimg.com" class="contact-cta">FIND ME</a>
+  <div class="contact-copyright">&copy; 2026 林晉維 — weiimg.com</div>
+</footer>
 
 <script>
-/* =========================================
-   PART 1: INTRO LOGIC (Drag & State)
-   ========================================= */
-const el = document.getElementById("drag");
-const subtitle = document.getElementById("subtitle");
-const body = document.body;
+/* Nav slide dropdown */
+(() => {
+  const wrap = document.querySelector('.nav-slide-wrap');
+  const trigger = wrap && wrap.querySelector('.has-dropdown');
+  if (!wrap || !trigger) return;
+  let timer;
+  const show = () => { clearTimeout(timer); wrap.classList.add('open'); };
+  const hide = () => { timer = setTimeout(() => wrap.classList.remove('open'), 250); };
+  trigger.addEventListener('mouseenter', show);
+  wrap.addEventListener('mouseleave', hide);
+  wrap.querySelectorAll('.nav-row:last-child a').forEach(a => {
+    a.addEventListener('mouseenter', show);
+  });
+})();
 
-// Intro State: "first" (Title), "second" (Subtitle), "done" (Moved to About)
-let introState = "first"; 
-let wheelCooldown = false;
+/* Nav logo arrow animation */
+const logo     = document.querySelector('.nav-logo');
+const line     = logo && logo.querySelector('.arrow-line');
+const navItems = document.querySelector('.nav-items');
 
-// --- Dragging Logic ---
-let isDragging = false;
-let startX = 0, startY = 0, currentX = 0, currentY = 0;
-const baseX = 0, baseY = 0;
-
-el.addEventListener("mousedown", startDrag);
-el.addEventListener("touchstart", startDrag, { passive:false });
-
-function startDrag(e){
-  if(introState !== "first") return; // 只有在第一階段可以拖曳
-  e.preventDefault();
-  isDragging = true;
-  el.classList.add("dragging");
-  const pos = e.touches ? e.touches[0] : e;
-  startX = pos.clientX - currentX;
-  startY = pos.clientY - currentY;
-  document.addEventListener("mousemove", onDrag);
-  document.addEventListener("mouseup", endDrag);
-  document.addEventListener("touchmove", onDrag, { passive:false });
-  document.addEventListener("touchend", endDrag);
+if (logo && line && navItems) {
+  function setArrowWidth() {
+    const lRect = logo.getBoundingClientRect();
+    const nRect = navItems.getBoundingClientRect();
+    line.style.width = Math.max(0, nRect.left - lRect.right - 12) + 'px';
+  }
+  logo.addEventListener('mouseenter', () => {
+    setArrowWidth();
+    logo.classList.remove('arrow-out');
+    logo.classList.add('arrow-in');
+  });
+  logo.addEventListener('mouseleave', () => {
+    logo.classList.remove('arrow-in');
+    logo.classList.add('arrow-out');
+    line.addEventListener('transitionend', () => logo.classList.remove('arrow-out'), { once: true });
+  });
 }
 
-function onDrag(e){
-  if(!isDragging) return;
-  const pos = e.touches ? e.touches[0] : e;
-  currentX = pos.clientX - startX;
-  currentY = pos.clientY - startY;
-  el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
-}
+/* Nav: show on scroll, hide on hero & footer */
+(() => {
+  const nav = document.querySelector('.nav');
+  const hero = document.querySelector('.hero');
+  const footer = document.querySelector('.contact');
+  if (!nav || !hero) return;
+  let heroVisible = true, footerVisible = false;
+  const update = () => nav.classList.toggle('visible', !heroVisible && !footerVisible);
+  new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; update(); }, { threshold: 0 }).observe(hero);
+  if (footer) new IntersectionObserver(([e]) => { footerVisible = e.intersectionRatio > 0.4; update(); }, { threshold: [0, 0.4, 1] }).observe(footer);
+})();
 
-function endDrag(){
-  isDragging = false;
-  el.classList.remove("dragging");
-  document.removeEventListener("mousemove", onDrag);
-  document.removeEventListener("touchmove", onDrag);
-  
-  // Spring Physics
-  let vx = currentX * 0.035;
-  let vy = currentY * 0.035;
-  const stiffness = 0.032, damping = 0.15, threshold = 0.07;
+/* Hero brand: mask-out WEIIMG + roll-out star on scroll */
+(() => {
+  const hero = document.querySelector('.hero');
+  const star = document.querySelector('.hero-star');
+  const text = document.querySelector('.hero-text');
+  if (!hero) return;
 
-  function animate(){
-    if(isDragging) return; // Stop animation if drag starts again
-    const ax = -stiffness * (currentX - baseX) - damping * vx;
-    const ay = -stiffness * (currentY - baseY) - damping * vy;
-    vx += ax; vy += ay;
-    currentX += vx; currentY += vy;
-    el.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
-    if (Math.abs(vx) > threshold || Math.abs(vy) > threshold){
-      requestAnimationFrame(animate);
-    } else {
-      currentX = baseX; currentY = baseY;
-      el.style.transform = `translate3d(0,0,0)`;
+  if (star) star.addEventListener('animationend', () => { star.style.animation = 'none'; star.style.opacity = '1'; star.style.transform = 'scale(1) rotate(0deg)'; });
+  if (text) text.addEventListener('animationend', () => { text.style.animation = 'none'; text.style.clipPath = 'inset(0 0 0 0)'; });
+
+  window.addEventListener('scroll', () => {
+    const rect = hero.getBoundingClientRect();
+    const h = hero.offsetHeight;
+    const progress = Math.max(0, Math.min(1, -rect.top / h));
+    if (text) text.style.clipPath = `inset(0 0 0 ${progress * 100}%)`;
+    if (star) {
+      star.style.transform = `translateX(${progress * 200}px) rotate(${progress * 360}deg)`;
+      star.style.opacity = 1 - progress;
     }
+  }, { passive: true });
+})();
+
+/* Services scroll-spy: highlight nav on scroll */
+(() => {
+  const panels = document.querySelectorAll('.svc-panel');
+  const navItems = document.querySelectorAll('.svc-nav-item');
+  if (!panels.length || !navItems.length) return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const idx = [...panels].indexOf(entry.target);
+      navItems.forEach(n => n.classList.remove('active'));
+      navItems[idx]?.classList.add('active');
+    });
+  }, { rootMargin: '-40% 0px -40% 0px', threshold: 0 });
+  panels.forEach(p => observer.observe(p));
+  navItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(item.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+})();
+
+/* Video overlay dissolve */
+(() => {
+  const wrap = document.querySelector('.parallax-wrap');
+  const hero = document.querySelector('.hero');
+  const video = wrap && wrap.querySelector('.parallax-video');
+  if (!wrap || !hero) return;
+
+  function tick() {
+    const vh = window.innerHeight;
+    const heroBottom = hero.getBoundingClientRect().bottom;
+    const dissolve = Math.max(0, Math.min(1, 1 - heroBottom / vh));
+    wrap.style.setProperty('--overlay-opacity', 1 - dissolve);
+    if (video) video.style.filter = dissolve < 1 ? `blur(${(1 - dissolve) * 12}px)` : 'none';
   }
-  requestAnimationFrame(animate);
-}
 
-// --- Global Interaction Controller (Wheel & Touch) ---
-// 負責處理 Intro 狀態切換 以及 Intro <-> About 的橋接
-
-window.addEventListener("wheel", (e) => {
-  if (wheelCooldown) return;
-
-  // 🔽 向下滾動
-  if (e.deltaY > 20) {
-    if (introState === "first") {
-      // 1 -> 2
-      changeIntroState("second");
-    } else if (introState === "second") {
-      // 2 -> About (3)
-      enterAboutMode();
-    }
-  } 
-  // 🔼 向上滾動
-  else if (e.deltaY < -20) {
-    if (introState === "second") {
-      // 2 -> 1
-      changeIntroState("first");
-    } else if (introState === "done") {
-      // About -> 2 (只有在 About 頂部時才觸發)
-      if (window.scrollY <= 0) {
-        exitAboutMode();
-      }
-    }
-  }
-}, { passive: false });
-
-// 手機觸控支援
-let touchStartY = 0;
-window.addEventListener("touchstart", (e) => {
-  touchStartY = e.touches[0].clientY;
-}, { passive: false });
-
-window.addEventListener("touchend", (e) => {
-  if (wheelCooldown) return;
-  const touchEndY = e.changedTouches[0].clientY;
-  const deltaY = touchStartY - touchEndY; // 正值=向上滑(下個內容)
-
-  if (deltaY > 30) { // 下個內容
-    if (introState === "first") changeIntroState("second");
-    else if (introState === "second") enterAboutMode();
-  } else if (deltaY < -30) { // 上個內容
-    if (introState === "second") changeIntroState("first");
-    else if (introState === "done" && window.scrollY <= 0) exitAboutMode();
-  }
-}, { passive: false });
-
-
-function changeIntroState(newState) {
-  wheelCooldown = true;
-  if (newState === "second") {
-    el.classList.add("exit");
-    el.classList.remove("enter");
-    subtitle.classList.add("enter");
-    subtitle.classList.remove("exit");
-    introState = "second";
-  } else if (newState === "first") {
-    el.classList.add("enter");
-    el.classList.remove("exit");
-    subtitle.classList.add("exit");
-    subtitle.classList.remove("enter");
-    introState = "first";
-  }
-  setTimeout(() => wheelCooldown = false, 600);
-}
-
-function enterAboutMode() {
-  wheelCooldown = true;
-  introState = "done";
-  
-  // 切換 CSS class 來觸發轉場
-  body.classList.remove("mode-intro");
-  body.classList.add("mode-about");
-  
-  // 讓 subtitle 往上飛走
-  subtitle.classList.add("exit");
-  subtitle.classList.remove("enter");
-
-  // 確保滾動在頂部
-  window.scrollTo(0,0);
-  
-  setTimeout(() => wheelCooldown = false, 1000);
-}
-
-function exitAboutMode() {
-  wheelCooldown = true;
-  introState = "second";
-  
-  // 切換 CSS class
-  body.classList.remove("mode-about");
-  body.classList.add("mode-intro");
-  
-  // 讓 subtitle 回來
-  subtitle.classList.add("enter");
-  subtitle.classList.remove("exit");
-
-  setTimeout(() => wheelCooldown = false, 1000);
-}
-
-// 點擊 LOGO 強制回到開頭的輔助函式
-function forceIntro() {
-  window.scrollTo(0,0);
-  changeIntroState("first");
-  introState = "first"; // 強制重置
-  body.classList.remove("mode-about");
-  body.classList.add("mode-intro");
-  el.classList.add("enter");
-  el.classList.remove("exit");
-  subtitle.classList.remove("enter"); // 確保 subtitle 消失
-  subtitle.classList.add("exit");
-}
-
-/* =========================================
-   PART 2: ABOUT SCROLL LOGIC
-   ========================================= */
-const bgWhite = document.getElementById('bg-white');
-const bgBlack = document.getElementById('bg-black');
-const text1 = document.getElementById('text-1');
-const text2 = document.getElementById('text-2');
-
-window.addEventListener('scroll', () => {
-  // 只有在 About 模式下才計算動畫，節省效能
-  if (introState !== "done") return;
-
-  const scrollY = window.scrollY;
-  const windowHeight = window.innerHeight;
-  // 這裡的 progress 會決定動畫進度
-  // 我們希望 scrollY 0 的時候顯示第一張圖
-  const progress = scrollY / windowHeight; 
-
-  // --- 背景動畫 ---
-  // 階段 1: 白色背景從底部升起
-  let whiteProgress = (progress - 0.2) / 0.8;
-  whiteProgress = Math.min(Math.max(whiteProgress, 0), 1);
-  bgWhite.style.transform = `translateY(${100 - (whiteProgress * 100)}%)`;
-
-  // 階段 2: 黑色背景從底部升起
-  let blackProgress = (progress - 1.2) / 0.8;
-  blackProgress = Math.min(Math.max(blackProgress, 0), 1);
-  bgBlack.style.transform = `translateY(${100 - (blackProgress * 100)}%)`;
-
-  // --- 文字動畫 ---
-  text1.classList.remove('active', 'prev', 'next');
-  text2.classList.remove('active', 'prev', 'next');
-
-  if (progress < 0.4) {
-    // 剛進入 About，顯示人像背景，文字還未出現
-    text1.classList.add('next');
-    text2.classList.add('next');
-  } 
-  else if (progress >= 0.4 && progress < 1.4) {
-    // 白色背景 + Professional 文字
-    text1.classList.add('active');
-    text2.classList.add('next');
-  } 
-  else {
-    // 黑色背景 + Personal 文字
-    text1.classList.add('prev');
-    text2.classList.add('active');
-  }
-});
-
-// 初始化觸發一次
-window.dispatchEvent(new Event('scroll'));
-
+  window.addEventListener('scroll', tick, { passive: true });
+  tick();
+})();
 </script>
-
 </body>
 </html>
