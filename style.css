@@ -475,8 +475,6 @@ body.inner-page main {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
 }
 .logo-marquee h3 {
   font-size: 11px;
@@ -490,6 +488,8 @@ body.inner-page main {
   display: flex;
   width: max-content;
   animation: marquee-scroll 40s linear infinite;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
 }
 .logo-marquee-track.reverse {
   animation: marquee-scroll-reverse 40s linear infinite;
